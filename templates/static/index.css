@@ -1,0 +1,81 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Open Sans', sans-serif;
+}
+
+body {
+  height: 100vh;
+  padding: 10px;
+  background: linear-gradient(200deg, #383838db, #000000);
+}
+
+.header {
+  padding: 15px 10px; /* Padding for the header */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.container {
+  display: flex;
+  justify-content: space-between; /* Space between logo/menu and registration block */
+  align-items: center; /* Center items vertically */
+}
+
+.menu {
+  display: flex;
+  align-items: center; /* Center items vertically */
+  font-size: 16px;
+}
+
+.logo > img {
+  width: 50px;
+  height: 50px;
+  margin-right: 20px; /* Space between logo and menu */
+}
+
+ul {
+  list-style: none; /* Remove bullet points */
+  display: flex; /* Display list items in a row */
+}
+
+li {
+  margin: 0 15px; /* Space between menu items */
+}
+
+a {
+  color: black; 
+  text-decoration: none; 
+}
+
+a:hover {
+  color: #565d65; /* Change color on hover */
+}
+
+.reg-block {
+  display: flex;
+  align-items: center; /* Center items vertically */
+}
+
+.not-logged-in {
+  display: flex;
+  flex-direction: column; /* Stack login/register vertically */
+  align-items: flex-end; /* Align to the right */
+
+}
+
+.login, .register {
+  margin: 5px 0; /* Space between login and register links */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+      flex-direction: column; /* Stack items vertically on smaller screens */
+      align-items: flex-start; /* Align items to the left */
+  }
+
+  .menu {
+      margin-bottom: 10px; /* Space below the menu */
+  }
+}
