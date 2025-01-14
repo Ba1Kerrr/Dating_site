@@ -39,6 +39,8 @@ def get_password_hash(password):
 async def read_root(request: Request):
     user = request.session.get('user')
     return templates.TemplateResponse("index.html", {"request": request, "user": user})
+
+
 @app.get("/logout")
 async def logout(request: Request):
     request.session.clear()
@@ -50,19 +52,25 @@ async def register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
 @app.post("/register")
-async def register(full_name: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...), confirm_password: str = Form(...)):
+async def register(username: str = Form(...),email: str = Form(...),password: str = Form(...),confirm_password: str = Form(...),age: int = Form(...),gender: bool = Form(...),name: str = Form(...)):
     if username in users_db:
         raise HTTPException(status_code=400, detail="Username already registered")
     elif username in users_db:
         raise HTTPException(status_code=400, detail="Email already registered")
     
     users_db[username] = {
-        "full_name": full_name,
-        "username": username,
         "email": email,
+        "username": username,
         "password": get_password_hash(password),
+        "age": age,
+        "gender": gender,
+        "name": name
     }
+
     return RedirectResponse(url="/login", status_code=303)
+
+
+
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_form(request: Request):
@@ -76,3 +84,13 @@ async def login(request: Request,username: str = Form(...), password: str = Form
     
     request.session['user'] = username
     return RedirectResponse(url="/", status_code=303)
+
+
+@app.get("/about")
+async def about(request: Request):
+    return templates.TemplateResponse("about.html", {"request": request})
+
+
+@app.get("/username")
+async def user_profile(request: Request):
+    return templates.TemplateResponse("user_profile.html", {"request": request})
