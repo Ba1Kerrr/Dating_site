@@ -73,12 +73,11 @@ async def register(
     password: str = Form(...),
     confirm_password: str = Form(...),
     age: int = Form(...),
-    gender: bool = Form(...),
-    name: str = Form(...),
-):
+    gender: str = Form(...),
+    name: str = Form(...)):
     if username in users_db:
         raise HTTPException(status_code=400, detail="Username already registered")
-    if email in [user["email"] for user in users_db.values()]:
+    if email in [user.get("email") for user in users_db.values()]:
         raise HTTPException(status_code=400, detail="Email already registered")
     if password != confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
@@ -88,9 +87,11 @@ async def register(
 
     # Store user in in-memory database (for demonstration)
     users_db[username] = {
-        "email": email,
         "username": username,
-        "password": hashed_password,
+        "age": age,
+        "gender": gender,
+        "name": name,
+        "password": hashed_password
     }
 
     # Insert user into the database
@@ -101,9 +102,8 @@ async def register(
         "name": name,
         "password": hashed_password
     }
-    insert_values(user_data)
-
-    return RedirectResponse(url="/login", status_code=202)
+    insert_values(username, age, gender, name, password)
+    return RedirectResponse("/login")
 
 # Login form endpoint
 @app.get("/login", response_class=HTMLResponse)
