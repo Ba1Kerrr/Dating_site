@@ -7,12 +7,13 @@ conn = engine.connect()
 metadata = MetaData()
 
 books = Table("profile",metadata,
-        Column("username", Text),
-        Column("email", Text),
+        Column("username", Text,primary_key=True,unique=True),
+        Column("email", Text,unique=True),
+        Column("password", Text),
         Column("age", Integer),
         Column("gender", Text),
         Column("name", Text),
-        Column("password", Text)
+        Column("location", Text)
 )
 metadata.create_all(engine)
 def insert_db(username, email,hashed_password):
@@ -20,8 +21,10 @@ def insert_db(username, email,hashed_password):
     conn.execute(query)
     conn.commit()
 
-def insert_values_dopinfo(username, age, gender, name,hashed_password):
-    query = text(f"INSERT INTO profile (username, age, gender, name, password) VALUES ('{username}',{age}, '{gender}', '{name}', '{hashed_password}')")
+def insert_values_dopinfo(username:str,age:int, gender:str, name:str,location:str) -> None:
+    query = text(f"""UPDATE PROFILE 
+SET AGE = {age}, GENDER = '{gender}', NAME = '{name}', LOCATION = '{location}' 
+WHERE username = '{username}';""")
     conn.execute(query)
     conn.commit()
 #this 2 checks for username and email return True if user exists or False if not
@@ -32,6 +35,7 @@ def check_username(username):
 def check_email(email):
     find_email = (conn.execute(text(f"SELECT 1 FROM profile WHERE email = '{email}'")).fetchall())
     return bool([x[0] for x in find_email])
+
 def info_user(username):
     query = text("SELECT username, email, password FROM profile WHERE username = :username")
     result = conn.execute(query, {"username": username}).fetchone()

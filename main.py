@@ -6,7 +6,8 @@ from passlib.context import CryptContext
 from starlette.middleware.sessions import SessionMiddleware
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
-from database import insert_db, check_email, check_username,info_user
+from database import insert_db, check_email, check_username,info_user,insert_values_dopinfo
+
 app = FastAPI()
 #add my static files(css,other)
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "templates"), name="static")
@@ -26,9 +27,6 @@ templates = Jinja2Templates(directory="templates")
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# In-memory user storage (for demonstration purposes)
-users_db = {}
-
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -39,7 +37,6 @@ def hash_password(password):
 async def read_root(request: Request):
     user = request.session.get('user')
     return templates.TemplateResponse("index.html", {"request": request, "user": user})
-
 @app.get("/logout")
 async def logout(request: Request):
     request.session.clear()
@@ -57,11 +54,6 @@ async def register(username: str = Form(...), email: str = Form(...), password: 
     elif check_email(email) == True:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    users_db[username] = {
-        "username": username,
-        "email": email,
-        "password": hash_password(password),
-    }
     insert_db(username, email,hash_password(password))
     return RedirectResponse(url="/login", status_code=303)
 
@@ -77,3 +69,29 @@ async def login(request: Request,username: str = Form(...), password: str = Form
 
     request.session['user'] = username
     return RedirectResponse(url="/", status_code=303)
+
+@app.get("/users/{username}",response_class =HTMLResponse)
+async def read_user(request: Request):
+    user = request.session.get('user')
+    return templates.TemplateResponse("user.html", {"request": request, "user": user})
+
+@app.post("/users/{username}")
+async def add_read_user(username,age:int = Form(),gender:str = Form(),name:str = Form(),location:str = Form()):
+    insert_values_dopinfo(username,age,gender,name,location)
+    #https://ru.stackoverflow.com/questions/801521/%D0%9A%D0%B0%D0%BA-%D0%B4%D0%B0%D1%82%D1%8C-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8E-%D0%B2%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D1%8F%D1%82%D1%8C-%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%BA%D1%83-%D0%BD%D0%B0-%D1%81%D0%B0%D0%B9%D1%82%D0%B5
+    #это инструкция по добавлению аватарки в базу данных
+    return RedirectResponse(url="/", status_code=303)
+#next steps will be to add avatar 
+
+    #https://www.tutorialspoint.com/flask/flask_upload_files.htm
+    #https://stackoverflow.com/questions/55293202/how-to-upload-and-display-images-in-flask-app
+    #https://flask-wtf.readthedocs.io/en/stable/quickstart.html#uploading-files
+    #https://flask-sqlalchemy.palletsprojects.com/en/2.x/quickstart/#simple-upload-example
+    #https://flask-login.readthedocs.io/en/latest/
+#else u need to improve registration params/check
+    #add else check :
+    # Username may only contain alphanumeric characters or single hyphens,
+    #  and cannot begin or end with a hyphen
+#and finally 2 steps is :
+# to add profile pages on main menu with filtres
+# to add update data if you want to recovery your account(update email,password)
