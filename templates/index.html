@@ -38,7 +38,12 @@
     <div class="container">
         <div class="content">
             <h1>Home</h1>
+            {% if user %}
             <p>{{ user }},welcome to the Home page!</p>
+            {% else %}
+            <p>Welcome to the Home page!</p>
+            <p>Please log in or register to access the site.</p>
+            {% endif %}
         </div>
     </div>
 </body>

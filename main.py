@@ -39,6 +39,7 @@ def hash_password(password):
 async def read_root(request: Request):
     user = request.session.get('user')
     return templates.TemplateResponse("index.html", {"request": request, "user": user})
+
 @app.get("/logout")
 async def logout(request: Request):
     request.session.clear()
