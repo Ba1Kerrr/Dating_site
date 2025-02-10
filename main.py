@@ -7,6 +7,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 from database import insert_db, check_email, check_username,info_user
+
 app = FastAPI()
 #add my static files(css,other)
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "templates"), name="static")
@@ -25,9 +26,6 @@ templates = Jinja2Templates(directory="templates")
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# In-memory user storage (for demonstration purposes)
-users_db = {}
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -76,3 +74,12 @@ async def login(request: Request,username: str = Form(...), password: str = Form
 
     request.session['user'] = username
     return RedirectResponse(url="/", status_code=303)
+
+@app.get("/users/{username}",response_class =HTMLResponse)
+async def read_user(request: Request):
+    user = request.session.get('user')
+    return templates.TemplateResponse("user.html", {"request": request, "user": user})
+
+@app.post("/users/{username}")
+async def add_read_user(location:str = Form(),age:int = Form(),gender:str = Form(),name:str = Form()):
+    return 0

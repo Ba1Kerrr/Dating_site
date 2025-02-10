@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{{ url_for('static', path='./static/index.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='./static/user.css') }}" rel="stylesheet">
 </head>
 <body>
     <div class = "container">
-        <h1>{username}</h1>
+        <h1>Hello,{{username}}</h1>
         <form method="post" id="form" action="/register">
             <div class="user-details">
                         <div class="input-box">

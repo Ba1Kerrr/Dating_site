@@ -7,12 +7,13 @@ conn = engine.connect()
 metadata = MetaData()
 
 books = Table("profile",metadata,
-        Column("username", Text),
-        Column("email", Text),
+        Column("username", Text,primary_key=True,unique=True),
+        Column("email", Text,unique=True),
+        Column("password", Text),
         Column("age", Integer),
         Column("gender", Text),
         Column("name", Text),
-        Column("password", Text)
+        Column("location", Text)
 )
 metadata.create_all(engine)
 def insert_db(username, email,hashed_password):
