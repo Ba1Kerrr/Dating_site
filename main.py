@@ -2,12 +2,12 @@ from fastapi import FastAPI, Form, Depends, HTTPException,Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from passlib.context import CryptContext
 from starlette.middleware.sessions import SessionMiddleware
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
-from database import insert_db, check_email, check_username,info_user,insert_values_dopinfo
-
+from database import insert_db,update_password,insert_values_dopinfo
+from database import info_user,check_email,check_username
+from hash import hash_password,verify_password
 app = FastAPI()
 #add my static files(css,other)
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "templates"), name="static")
@@ -24,19 +24,23 @@ app.add_middleware(
 # Template configuration
 templates = Jinja2Templates(directory="templates")
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def hash_password(password):
-    return pwd_context.hash(password)
-
 @app.get("/")
 async def read_root(request: Request):
     user = request.session.get('user')
     return templates.TemplateResponse("index.html", {"request": request, "user": user})
+# #-----------------------------------------------------------------
+# @app.post("/update_password")
+# async def update_password(request: Request, old_password: str = Form(...), new_password: str = Form(...), confirm_new_password: str = Form(...)):
+#     user = request.session.get('user')
+#     if user is None:
+#         raise HTTPException(status_code=401, detail="Unauthorized")
+
+#     if not verify_password(old_password, info_user(user)['password']):
+#         raise HTTPException(status_code=400, detail="Invalid old password")
+
+#     if new_password != confirm_new_password:
+#         raise HTTPException(status_code=400, detail="Passwords do not match")
+# #----------------------------------------------------------------------------------
 @app.get("/logout")
 async def logout(request: Request):
     request.session.clear()
@@ -81,7 +85,20 @@ async def add_read_user(username,age:int = Form(),gender:str = Form(),name:str =
     #https://ru.stackoverflow.com/questions/801521/%D0%9A%D0%B0%D0%BA-%D0%B4%D0%B0%D1%82%D1%8C-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8E-%D0%B2%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D1%8F%D1%82%D1%8C-%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%BA%D1%83-%D0%BD%D0%B0-%D1%81%D0%B0%D0%B9%D1%82%D0%B5
     #это инструкция по добавлению аватарки в базу данных
     return RedirectResponse(url="/", status_code=303)
-#next steps will be to add avatar 
+@app.post("/forgot_password")
+async def update_password(request: Request, username: str = Form(...), new_password: str = Form(...)):
+    user = info_user(username)
+    hashed_new_password = hash_password(new_password)
+    success = update_password(username, hashed_new_password)
+    if not success:
+        raise HTTPException(status_code=400)
+    request.session['user'] = username
+    return RedirectResponse(url="/", status_code=303)
+
+
+@app.get('/forgot_password',response_class=HTMLResponse)
+async def forgot_password(request: Request):
+    return templates.TemplateResponse("forgot-password.html", {"request": request})#next steps will be to add avatar 
 
 #else u need to improve registration params/check
     #add else check :

@@ -1,7 +1,9 @@
 from sqlalchemy import create_engine,text,insert,MetaData,Table,values
 from sqlalchemy import Integer,Text,Boolean,Column
 from passlib.context import CryptContext
-from ast import literal_eval
+from sqlalchemy.exc import SQLAlchemyError
+from hash import hash_password,verify_password
+
 engine = create_engine("postgresql+psycopg2://postgres:root@localhost:5432/Dating-site", echo=False)
 conn = engine.connect()
 metadata = MetaData()
@@ -43,7 +45,21 @@ def info_user(username): #-> {username:username,email:email,password : hashed_pa
         return dict(zip(['username', 'email', 'password'], result))
     else:
         return None
-def update_password(username,new_hashed_password):
-    query = text(f"UPDATE  profile SET password = '{new_hashed_password}' WHERE username = '{username}'")
-    conn.execute(query)
-    conn.commit()
+def update_password(username, new_password):
+    try:
+        query = text(f"UPDATE profile SET password = '{new_password}' WHERE username = '{username}'")
+        result = conn.execute(query)
+        affected_rows = result.rowcount
+        
+        if affected_rows == 0:
+            return False, "User   not found"
+        elif affected_rows >= 1:
+            conn.commit()
+            return True, "Password updated successfully"
+    
+    except SQLAlchemyError as e:
+        conn.rollback()
+        return False, f"Database error: {e}"
+    except Exception as e:
+        conn.rollback()
+        return False, f"An unexpected error occurred: {e}"
