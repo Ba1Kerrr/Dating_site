@@ -36,10 +36,14 @@ def check_email(email):
     find_email = (conn.execute(text(f"SELECT 1 FROM profile WHERE email = '{email}'")).fetchall())
     return bool([x[0] for x in find_email])
 
-def info_user(username):
-    query = text("SELECT username, email, password FROM profile WHERE username = :username")
+def info_user(username): #-> {username:username,email:email,password : hashed_password}
+    query = text(f"SELECT username, email, password FROM profile WHERE username = '{username}'")
     result = conn.execute(query, {"username": username}).fetchone()
     if result:
         return dict(zip(['username', 'email', 'password'], result))
     else:
         return None
+def update_password(username,new_hashed_password):
+    query = text(f"UPDATE  profile SET password = '{new_hashed_password}' WHERE username = '{username}'")
+    conn.execute(query)
+    conn.commit()

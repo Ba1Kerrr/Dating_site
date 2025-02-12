@@ -83,11 +83,6 @@ async def add_read_user(username,age:int = Form(),gender:str = Form(),name:str =
     return RedirectResponse(url="/", status_code=303)
 #next steps will be to add avatar 
 
-    #https://www.tutorialspoint.com/flask/flask_upload_files.htm
-    #https://stackoverflow.com/questions/55293202/how-to-upload-and-display-images-in-flask-app
-    #https://flask-wtf.readthedocs.io/en/stable/quickstart.html#uploading-files
-    #https://flask-sqlalchemy.palletsprojects.com/en/2.x/quickstart/#simple-upload-example
-    #https://flask-login.readthedocs.io/en/latest/
 #else u need to improve registration params/check
     #add else check :
     # Username may only contain alphanumeric characters or single hyphens,
