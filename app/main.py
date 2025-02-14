@@ -10,6 +10,7 @@ import re
 from database import insert_db,update_password,insert_values_dopinfo,update_password_email
 from database import info_user,check_email,check_username,info_user_email,detect_username_from_email
 from hash import hash_password,verify_password
+from verification import send_verification_email
 import os
 
 #-----------------------------------------------------------------------------------------------------------------------------
@@ -86,6 +87,10 @@ async def login(request: Request,username: str = Form(...), password: str = Form
 @app.post("/forgot_password")
 async def update_password(request: Request, username: str = Form(...), new_password: str = Form(...)):
     user = info_user(username)
+    #здесь будет штука,получающая email из переменной user(это делается - user['email']) и отправляющая письмо
+    #затем мы отправлям с функцию js в самом фронтенде,когда пользователь отправил свой username(для этого создать отдельный button) и обрабатываем ее на бэке
+    #после этого ждем отправки от пользователя с формы ключ для восстановления
+    #затем в случаи успеха(желательно это также сделать в js(передать js инпут от пользователя)),затем даем челу ввести новый пароль
     hashed_new_password = hash_password(new_password)
     success = update_password(username, hashed_new_password)
     if not success:
@@ -106,14 +111,14 @@ async def forgot_usrname_get(request: Request):
 @app.post("/forgot_username")
 async def forgot_usrname(request: Request, email: str = Form(...), new_password: str = Form(...)):
     user = info_user_email(email)
+    #даем ему ввести email,высылаем код,проверяем его,потом даем ему ввести новый пароль
     hashed_new_password = hash_password(new_password)
     success = update_password_email(info_user_email, hashed_new_password)
     if not success:
         raise HTTPException(status_code=400)
     request.session['user'] = detect_username_from_email(email)
     return RedirectResponse(url="/", status_code=303)
-#https://ru.stackoverflow.com/questions/865445/%D0%9F%D0%BE%D0%B4%D1%82%D0%B2%D0%B5%D1%80%D0%B6%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5-email-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F-%D1%87%D0%B5%D1%80%D0%B5%D0%B7-api
-#2Fac auth - send verification code
+
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                           add some dop-info on your profile(username,age,gender,name,location)
 
@@ -138,7 +143,8 @@ async def add_read_user(request:Request,username: str, age: int = Form(), gender
         file.file.close()
     # insert_values_dopinfo(username,age,gender,name,location,f"{username}-{file.filename}")
     return templates.TemplateResponse("user.html", {"request": request, "user": username})
- 
+    #сдесь нужно сделать так чтоб чел видел обычную страницу(нужно в html поменять display,увести все в левый угол,затем будем делать сами фотки этого человека как в той же инсте или вк )
+                                        #!!!!полностью поменять оформление профиля!!!!!!
 
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                                       logout
@@ -147,7 +153,7 @@ async def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/", status_code=303)
 #-----------------------------------------------------------------------------------------------------------------------------
-#                               Handling JavaScript Functions to Prevent Errors
+#                               Handling JavaScript Functions
 @app.post("/upload")
 async def upload():
     return 0
