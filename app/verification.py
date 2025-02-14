@@ -58,11 +58,11 @@ def verification(email):
     print("Ваш ключ:", key)
     send_email(email, "Ваш ключ: " + str(key))
     user_input = input("Введите ключ:")
-    user_key = input()
     # Проверяем ключ
-    if user_key == str(key):
-        return [True,("Ключ верный!")]
+    if user_input == str(key):
+        return True
+        print(1)
     else:
-        return [False,("Ключ неверный!")]
+        return False
 
-print(verification())
+print(verification('kohesgarote@gmail.com'))
