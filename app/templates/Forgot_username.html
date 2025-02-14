@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="{{ url_for('static', path='./static/forgot_password.css') }}" rel="stylesheet">   
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+<body>
+    <div class="container">
+        <div class="title">Forgot username form</div>
+        <hr>
+        <div class="content">
+          <form method="post" id="form" action="/forgot_username">
+            <div class="user-details">
+                <div class="input-box">
+                    <span class="details">Email</span>
+                    <input type="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="input-box">
+                    <span class="details">New password</span>
+                    <input type="new_password" name="new_password" placeholder="Enter your new password" required>
+                </div>
+                <div class="button-container">
+                    <div class="button">
+                        <input type="submit" value="submit">
+                </div>
+            </div>
+         </form>
+        </div>
+    </div>
+</body>
+</html>
