@@ -53,10 +53,10 @@ def generate_key():
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                          обработка
 
-def main():
+def verification(email):
     key = generate_key()
     print("Ваш ключ:", key)
-    send_email("kohesgaroxe@gmail.com", "Ваш ключ: " + str(key))
+    send_email(email, "Ваш ключ: " + str(key))
     user_input = input("Введите ключ:")
     user_key = input()
     # Проверяем ключ
@@ -65,4 +65,4 @@ def main():
     else:
         return [False,("Ключ неверный!")]
 
-print(main())
+print(verification())
