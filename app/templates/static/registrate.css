@@ -37,7 +37,7 @@ body{
   background: linear-gradient(135deg, #777777, #000000);
 }
 .content form .user-details{
-  display: flex;
+  display:flex;
   flex-wrap: wrap;
   justify-content: space-between;
   margin: 20px 0 12px 0;
@@ -66,10 +66,6 @@ form .input-box span.details{
 .user-details .input-box input:valid{
   border-color: #000000;
 }
- form .gender-details .gender-title{
-  font-size: 20px;
-  font-weight: 500;
- }
  form .category{
    display: flex;
    width: 80%;
@@ -84,13 +80,13 @@ form .input-box span.details{
 
  form .button{
    height: 45px;
-   margin: 35px 0
- }
+   margin: 5px 0
+} /*отвечает за отступ между верхним элементом */
+
  form .button input{
    height: 100%;
    width: 100%;
    border-radius: 5px;
-   border: none;
    color: #fff;
    font-size: 18px;
    font-weight: 500;
@@ -149,3 +145,10 @@ form .user-details .input-box{
 .hidden {
   display: none;
 }
+.user-details .input-box {
+    width: 300px !important; /* добавляем !important, чтобы перезаписать все предыдущие значения ширины */
+  }
+  .button-container {
+    width: 50%;
+  }
+  

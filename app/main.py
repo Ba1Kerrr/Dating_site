@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, Form, Depends, HTTPException,Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -10,7 +11,7 @@ import re
 from database import insert_db,update_password,insert_values_dopinfo,update_password_email
 from database import info_user,check_email,check_username,info_user_email,detect_username_from_email
 from hash import hash_password,verify_password
-from verification import send_verification_email
+from verification import send_email
 import os
 
 #-----------------------------------------------------------------------------------------------------------------------------
@@ -48,9 +49,14 @@ async def read_root(request: Request):
 @app.get("/register", response_class=HTMLResponse)
 async def register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
-
 @app.post("/register")
-async def register(username: str = Form(...), email: str = Form(...), password: str = Form(...), confirm_password: str = Form(...)):
+async def register(request: Request,username: str = Form(...), email: str = Form(...), password: str = Form(...), confirm_password: str = Form(...),input_key: str = Form(...)):
+    form_data = await request.form()
+    username = form_data.get("username")
+    email = form_data.get("email")
+    password = form_data.get("password")
+    confirm_password = form_data.get("confirm_password")
+    input_key = form_data.get("input_key")
     if username[0] == "/" or username[-1] == "/":
         raise HTTPException(status_code=400, detail="Username cannot start or end with a slash")
     if not re.match("^[a-zA-Z0-9_]+$", username):
@@ -61,9 +67,10 @@ async def register(username: str = Form(...), email: str = Form(...), password: 
         raise HTTPException(status_code=400, detail="Username already registered")
     elif check_email(email) == True:
         raise HTTPException(status_code=400, detail="Email already registered")
-
+    if input_key != key:
+        raise HTTPException(status_code=400, detail="Code is incorrect")
     insert_db(username, email,hash_password(password))
-    return RedirectResponse(url="/login", status_code=303)
+    return RedirectResponse(url="/users/{username}", status_code=303)
 
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                               login
@@ -126,7 +133,7 @@ async def forgot_usrname(request: Request, email: str = Form(...), new_password:
 async def read_user(request: Request):
     user = request.session.get('user')
     avatar = info_user(user)['avatar']
-    return templates.TemplateResponse("user.html", {"request": request, "user": user,"avatar":avatar})
+    return templates.TemplateResponse("dop_info.html", {"request": request, "user": user,"avatar":avatar})
 
 
 @app.post("/users/{username}")
@@ -142,7 +149,7 @@ async def add_read_user(request:Request,username: str, age: int = Form(), gender
     finally:
         file.file.close()
     # insert_values_dopinfo(username,age,gender,name,location,f"{username}-{file.filename}")
-    return templates.TemplateResponse("user.html", {"request": request, "user": username})
+    return templates.TemplateResponse("dop_info.html", {"request": request, "user": username})
     #сдесь нужно сделать так чтоб чел видел обычную страницу(нужно в html поменять display,увести все в левый угол,затем будем делать сами фотки этого человека как в той же инсте или вк )
                                         #!!!!полностью поменять оформление профиля!!!!!!
 
@@ -156,7 +163,13 @@ async def logout(request: Request):
 #                               Handling JavaScript Functions
 @app.post("/upload")
 async def upload():
-    return 0
+    return 1
+@app.post('/send_email')
+async def send_email_endpoint(request: Request, form_data: dict):
+    email = form_data.get("email")
+    global key
+    key = send_email(email)
+    return {"key": key}
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                                       dop-info about futures
 
@@ -164,7 +177,8 @@ async def upload():
 # to add profile pages on main menu with filtres to find you second part
 #incude in my project redis,nginx
 # in next steps is create and use server
+#add redis,kafka
 
-
-
-#git commit -m "added docker settings,restore if you forgot password,image preview and add avatar to DB"
+# ну верификацию сделал,но она работает очень коряво,
+# нужно также сделать проверку js на то чтоб все данные были корректные(подключить модели)
+# также почитать все в файле fastapi-help

@@ -84,6 +84,7 @@ def update_password_email(email, new_password):
         elif affected_rows >= 1:
             conn.commit()
             return True, "Password updated successfully"
+        
     
     except SQLAlchemyError as e:
         conn.rollback()

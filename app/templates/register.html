@@ -4,36 +4,61 @@
     <link href="{{ url_for('static', path='./static/registrate.css') }}" rel="stylesheet">   
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link href="{{ url_for('static', path='./static/registrate.css') }}" rel="stylesheet">   
 </head>
 <body>
     <div class="container">
         <div class="title">Registration Form</div>
         <hr>
         <div class="content">
-          <form method="post" id="form" action="/register">
+          <form method="post" id="register_form" action="/register">
             <div class="user-details">
                 <div class="input-box">
                     <span class="details">Username</span>
-                    <input type="username" name="username" placeholder="Enter your username" required>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
                 </div>
-
                 <div class="input-box">
                     <span class="details">Email</span>
-                    <input type="email" name="email" placeholder="Enter your email" required>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email">
                 </div>
                 <div class="input-box">
+                    <span class="details">Key</span>
+                    <input type="text" id="input_key" name="input_key" placeholder="Введите ключ" required>
+                </div>
+                <div class="button-container">
+                    <div class="button">
+                        <input id="send_email_button" value="Send Email" name="send_email" type="button">
+                    </div>
+                </div>
+                <script>
+                    document.getElementById("send_email_button").addEventListener("click", function() {
+                    const email = document.querySelector('input[name="email"]').value;
+                    fetch("/send_email", {
+                        method: "POST",
+                        headers: {
+                        "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                        email
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log(data))
+                    .catch(error => console.error("Ошибка:", error));
+                    });
+                </script>
+                <div class="input-box">
                     <span class="details">Password</span>
-                    <input type="password" name="password" placeholder="Enter your password" required>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="new-password">
                 </div>
                 <div class="input-box">
                     <span class="details">Confirm Password</span>
-                    <input type="password" name="confirm_password" placeholder="Confirm your password" required>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required autocomplete="new-password">
                 </div>
-            </div>
-            <div class="button-container">
-                <div class="button">
-                    <input type="submit" value="Register">
+                <div class="button-container">
+                    <div class="button">
+                        <input type="submit" value="Register" name="register">
+                    </div>
                 </div>
             </div>
           </form>
