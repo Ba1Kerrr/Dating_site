@@ -1,4 +1,3 @@
-import json
 from fastapi import FastAPI, Form, Depends, HTTPException,Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -51,12 +50,7 @@ async def register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 @app.post("/register")
 async def register(request: Request,username: str = Form(...), email: str = Form(...), password: str = Form(...), confirm_password: str = Form(...),input_key: str = Form(...)):
-    form_data = await request.form()
-    username = form_data.get("username")
-    email = form_data.get("email")
-    password = form_data.get("password")
-    confirm_password = form_data.get("confirm_password")
-    input_key = form_data.get("input_key")
+    input_key = request.session.get("input_key")
     if username[0] == "/" or username[-1] == "/":
         raise HTTPException(status_code=400, detail="Username cannot start or end with a slash")
     if not re.match("^[a-zA-Z0-9_]+$", username):
@@ -144,12 +138,13 @@ async def add_read_user(request:Request,username: str, age: int = Form(), gender
         # contents = file.file.read()
         with open(os.path.join(static_dir, unique_filename), "wb") as f:
             f.write(await file.read())
+        
     except Exception:
         raise HTTPException(status_code=500, detail='Something went wrong')
     finally:
         file.file.close()
-    # insert_values_dopinfo(username,age,gender,name,location,f"{username}-{file.filename}")
-    return templates.TemplateResponse("dop_info.html", {"request": request, "user": username})
+    insert_values_dopinfo(username,age,gender,name,location,f"{username}-{file.filename}")
+    return RedirectResponse(url="/login", status_code=303)
     #сдесь нужно сделать так чтоб чел видел обычную страницу(нужно в html поменять display,увести все в левый угол,затем будем делать сами фотки этого человека как в той же инсте или вк )
                                         #!!!!полностью поменять оформление профиля!!!!!!
 
