@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{{ url_for('static', path='./static/user.css') }}" rel="stylesheet">   
+
+</head>
+<body>
+    <div class="container">
+        <div class="image">
+            <a href="{{avatar}}">avatar</a>
+        </div>
+        <div class = "info">
+            <a class = "Username">{{user}}</a>
+            <a class = "age">{{age}}</a>
+            <a class = "gender">{{gender}}</a>
+            <a class = "location">{{location}}</a>
+            <a class = "name">{{name}}</a>
+        </div>
+    </div>
+</body>
+</html>

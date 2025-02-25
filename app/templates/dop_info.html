@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{{ url_for('static', path='./static/user.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='./static/dop-info.css') }}" rel="stylesheet">
 </head>
 <body>
     <div class = "container">
         <h1>Hello,{{user}}</h1>
         <div class="content">
-                <form method="post" id="form" action="/users/{{user}}" enctype="multipart/form-data">
+                <form method="post" id="form" action="/register/dop-info" enctype="multipart/form-data">
                     <div class="user-details">
                                 <div class="input-box">
                             <span class="details">Age</span>

@@ -8,7 +8,7 @@ from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 import re
 from database import insert_db,update_password,insert_values_dopinfo,update_password_email
-from database import info_user,check_email,check_username,info_user_email,detect_username_from_email
+from database import info_user,check_email,check_username,info_user_email,detect_username_from_email,profile
 from hash import hash_password,verify_password
 from verification import send_email
 import os
@@ -64,8 +64,46 @@ async def register(request: Request,username: str = Form(...), email: str = Form
     if input_key != key:
         raise HTTPException(status_code=400, detail="Code is incorrect")
     insert_db(username, email,hash_password(password))
-    return RedirectResponse(url="/users/{username}", status_code=303)
+    request.session['user'] = username
+    return RedirectResponse(url="/register/dop-info", status_code=303)
+#-----------------------------------------------------------------------------------------------------------------------------
+#                                           add some dop-info on your profile(username,age,gender,name,location)
 
+@app.get("/register/dop-info",response_class =HTMLResponse)
+async def read_user(request: Request):
+    user = request.session.get('user')
+    avatar = info_user(user)['avatar']
+    return templates.TemplateResponse("dop_info.html", {"request": request, "user": user,"avatar":avatar})
+
+
+@app.post("/register/dop-info")
+async def add_read_user(request:Request, age: int = Form(), gender: str = Form(), name: str = Form(), location: str = Form(),file:UploadFile = File(...)):
+    username = request.session.get('user')
+    unique_filename = f"{username}-{file.filename}"
+    static_dir = os.path.join(os.path.dirname(__file__), "templates","static")
+    try:
+        # contents = file.file.read()
+        with open(os.path.join(static_dir, unique_filename), "wb") as f:
+            f.write(await file.read())
+        
+    except Exception:
+        raise HTTPException(status_code=500, detail='Something went wrong')
+    finally:
+        file.file.close()
+    insert_values_dopinfo(username,age,gender,name,location,f"{username}-{file.filename}")
+    request.session['user'] = username
+    return RedirectResponse(url="/", status_code=303)
+#-----------------------------------------------------------------------------------------------------------------------------
+#                               Handling JavaScript Functions to add some dop-info on your profile(images)
+@app.post("/upload")
+async def upload():
+    return 1
+@app.post('/send_email')
+async def send_email_endpoint(request: Request, form_data: dict):
+    email = form_data.get("email")
+    global key
+    key = send_email(email)
+    return {"key": key}
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                               login
 
@@ -119,32 +157,17 @@ async def forgot_usrname(request: Request, email: str = Form(...), new_password:
         raise HTTPException(status_code=400)
     request.session['user'] = detect_username_from_email(email)
     return RedirectResponse(url="/", status_code=303)
-
 #-----------------------------------------------------------------------------------------------------------------------------
-#                                           add some dop-info on your profile(username,age,gender,name,location)
-
+#                                           my_profile
 @app.get("/users/{username}",response_class =HTMLResponse)
-async def read_user(request: Request):
-    user = request.session.get('user')
-    avatar = info_user(user)['avatar']
-    return templates.TemplateResponse("dop_info.html", {"request": request, "user": user,"avatar":avatar})
-
-
-@app.post("/users/{username}")
-async def add_read_user(request:Request,username: str, age: int = Form(), gender: str = Form(), name: str = Form(), location: str = Form(),file:UploadFile = File(...)):
-    unique_filename = f"{username}-{file.filename}"
-    static_dir = os.path.join(os.path.dirname(__file__), "templates","static")
-    try:
-        # contents = file.file.read()
-        with open(os.path.join(static_dir, unique_filename), "wb") as f:
-            f.write(await file.read())
-        
-    except Exception:
-        raise HTTPException(status_code=500, detail='Something went wrong')
-    finally:
-        file.file.close()
-    insert_values_dopinfo(username,age,gender,name,location,f"{username}-{file.filename}")
-    return RedirectResponse(url="/login", status_code=303)
+async def read_user(request: Request,username:str):
+    user = profile(username)
+    avatar = user['avatar']
+    age = user['age']
+    gender = user['gender']
+    name = user['name']
+    location = user['location']
+    return templates.TemplateResponse("user.html", {"request": request, "user": user,avatar:"avatar",age:"age",gender:"gender",name:"name",location:"location"})
     #сдесь нужно сделать так чтоб чел видел обычную страницу(нужно в html поменять display,увести все в левый угол,затем будем делать сами фотки этого человека как в той же инсте или вк )
                                         #!!!!полностью поменять оформление профиля!!!!!!
 
@@ -156,15 +179,7 @@ async def logout(request: Request):
     return RedirectResponse(url="/", status_code=303)
 #-----------------------------------------------------------------------------------------------------------------------------
 #                               Handling JavaScript Functions
-@app.post("/upload")
-async def upload():
-    return 1
-@app.post('/send_email')
-async def send_email_endpoint(request: Request, form_data: dict):
-    email = form_data.get("email")
-    global key
-    key = send_email(email)
-    return {"key": key}
+
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                                       dop-info about futures
 

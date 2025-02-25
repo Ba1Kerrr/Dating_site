@@ -20,6 +20,7 @@ books = Table("profile",metadata,
 
 )
 metadata.create_all(engine)
+
 def insert_db(username, email,hashed_password):
     query = text(f"INSERT INTO profile (username,email,password) VALUES ('{username}','{email}','{hashed_password}')")
     conn.execute(query)
@@ -53,6 +54,13 @@ def info_user_email(email): #-> {username:username,email:email,password : hashed
     result = conn.execute(query, {"email": email}).fetchone()
     if result:
         return dict(zip(['username', 'email', 'password','avatar'], result))
+    else:
+        return None
+def profile(username): #-> {username:username,email:email,password : hashed_password}
+    query = text(f"SELECT username,email,age,gender,name,avatar,location FROM profile WHERE username = '{username}'")
+    result = conn.execute(query, {"username": username}).fetchone()
+    if result:
+        return dict(zip(['username','email','age','gender','name','avatar','location'], result))
     else:
         return None
 def update_password(username, new_password):
