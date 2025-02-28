@@ -17,6 +17,7 @@ books = Table("profile",metadata,
         Column("name", Text),
         Column("location", Text),
         Column("avatar", Text),
+        Column("bio", Text)
 
 )
 metadata.create_all(engine)
@@ -26,9 +27,9 @@ def insert_db(username, email,hashed_password):
     conn.execute(query)
     conn.commit()
 
-def insert_values_dopinfo(username:str,age:int, gender:str, name:str,location:str,avatar:str) -> None:
+def insert_values_dopinfo(username:str,age:int, gender:str, name:str,location:str,avatar:str,bio:str) -> None:
     query = text(f"""UPDATE PROFILE 
-SET AGE = {age}, GENDER = '{gender}', NAME = '{name}', LOCATION = '{location}',avatar = '{avatar}'
+SET AGE = {age}, GENDER = '{gender}', NAME = '{name}', LOCATION = '{location}',avatar = '{avatar}',bio = '{bio}'
 WHERE username = '{username}';""")
     conn.execute(query)
     conn.commit()
@@ -57,10 +58,10 @@ def info_user_email(email): #-> {username:username,email:email,password : hashed
     else:
         return None
 def profile(username): #-> {username:username,email:email,password : hashed_password}
-    query = text(f"SELECT username,email,age,gender,name,avatar,location FROM profile WHERE username = '{username}'")
+    query = text(f"SELECT username,email,age,gender,name,avatar,location,bio FROM profile WHERE username = '{username}'")
     result = conn.execute(query, {"username": username}).fetchone()
     if result:
-        return dict(zip(['username','email','age','gender','name','avatar','location'], result))
+        return dict(zip(['username','email','age','gender','name','avatar','location','bio'], result))
     else:
         return None
 def update_password(username, new_password):

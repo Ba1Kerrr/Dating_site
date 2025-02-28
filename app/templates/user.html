@@ -28,90 +28,30 @@
   <title>
    Dating Profile
   </title>
-  <script src="https://cdn.tailwindcss.com">
-  </script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="{{ url_for('static', path='./static/user.css') }}" rel="stylesheet">   
+
  </head>
- <body class="bg-gray-100 font-roboto">
-  <div class="container mx-auto p-4">
-   <div class="bg-white shadow-md rounded-lg overflow-hidden">
-    <div class="relative">
-     <img alt="Background image placeholder" class="w-full h-48 object-cover" height="300" src="https://storage.googleapis.com/a1aa/image/hXFPdmZn01ZhuCy_KxcZPzyLgnpS2K2n_SZh6rkqHyc.jpg" width="800"/>
-     <div class="absolute bottom-0 left-0 p-4 flex items-center">
-      <img alt="User profile picture placeholder" class="w-24 h-24 rounded-full border-4 border-white" height="100" src="https://storage.googleapis.com/a1aa/image/1sQKIPDzNacVCwHD6Pffo3182sEsHjp67feaG2-PN0M.jpg" width="100"/>
-      <div class="ml-4">
-       <h1 class="text-blue-200">
-        {{username}}
-       </h1>
-       <p class="text-blue-200">
-        {{age}} years old
-       </p>
-      </div>
-     </div>
+<body>
+    <div class="container">
+        <div class = "text_avatar">
+            <div class="image">
+                <img src="{{ url_for('static', path='./static/' + avatar) }}" alt="User  Avatar">
+            </div>
+            <div class = "info">
+                <h1>Short Info</h1>
+                <a>{{ name }}</a>
+                <a>{{ user }}</a>
+                <a>{{ age }} years old</a>
+                <a>{{ gender }}</a>
+            </div>
+        </div>
+        <div class = "bio">
+            <a>{{ bio }}</a>
+        </div>
+        <div class="contact_information">
+            <h1>Contact Information</h1>
+            <a>{{ email }}</a>
+        </div>
     </div>
-    <div class="p-6">
-     <h2 class="text-xl font-semibold mb-4">
-      About Me
-     </h2>
-     <p class="text-gray-700 mb-4">
-      Hi! I'm {{name}}, a fun-loving and adventurous person who loves to explore new places and meet new people. I enjoy hiking, reading, and cooking. Looking for someone who shares my passion for life and is ready for new adventures.
-     </p>
-     <h2 class="text-xl font-semibold mb-4">
-      Interests
-     </h2>
-     <ul class="text-gray-700 mb-4">
-      <li class="mb-2">
-       <i class="fas fa-heart mr-2">
-       </i>
-       Hiking
-      </li>
-      <li class="mb-2">
-       <i class="fas fa-heart mr-2">
-       </i>
-       Reading
-      </li>
-      <li class="mb-2">
-       <i class="fas fa-heart mr-2">
-       </i>
-       Cooking
-      </li>
-      <li class="mb-2">
-       <i class="fas fa-heart mr-2">
-       </i>
-       Traveling
-      </li>
-     </ul>
-     <h2 class="text-xl font-semibold mb-4">
-      Contact Information
-     </h2>
-     <ul class="text-gray-700 mb-4">
-      <li class="mb-2">
-       <i class="fas fa-envelope mr-2">
-       </i>
-       jane.doe@example.com
-      </li>
-      <li class="mb-2">
-       <i class="fas fa-phone mr-2">
-       </i>
-       +123 456 7890
-      </li>
-      <li class="mb-2">
-       <i class="fas fa-map-marker-alt mr-2">
-       </i>
-       456 Elm Street, Anytown, USA
-      </li>
-     </ul>
-     <h2 class="text-xl font-semibold mb-4">
-      Photos
-     </h2>
-     <div class="grid grid-cols-3 gap-4">
-      <img alt="Photo 1 placeholder" class="w-full h-32 object-cover rounded-lg" height="200" src="https://storage.googleapis.com/a1aa/image/E0VEKq8IjXSqtZiej5TfbVGjsm3xlIk6ewIBD7D3g7s.jpg" width="200"/>
-      <img alt="Photo 2 placeholder" class="w-full h-32 object-cover rounded-lg" height="200" src="https://storage.googleapis.com/a1aa/image/3SyzEUuDk_nTRGjxFr949CLMRnnNdICrH7RvpjkDERQ.jpg" width="200"/>
-      <img alt="Photo 3 placeholder" class="w-full h-32 object-cover rounded-lg" height="200" src="https://storage.googleapis.com/a1aa/image/hDi7PAUkkFL4yhJgNunGe3x8mm2Tq3nM_XP0kOFMp6Q.jpg" width="200"/>
-     </div>
-    </div>
-   </div>
-  </div>
  </body>
 </html>

@@ -89,7 +89,7 @@ async def read_user(request: Request):
 
 
 @app.post("/register/dop-info")
-async def add_read_user(request:Request, age: int = Form(), gender: str = Form(), name: str = Form(), location: str = Form(),file:UploadFile = File(...)):
+async def add_read_user(request:Request, age: int = Form(), gender: str = Form(), name: str = Form(), location: str = Form(),file:UploadFile = File(...),bio:str = Form(...)):
     username = request.session.get('user')
     unique_filename = f"{username}-{file.filename}"
     static_dir = os.path.join(os.path.dirname(__file__), "templates","static")
@@ -102,7 +102,7 @@ async def add_read_user(request:Request, age: int = Form(), gender: str = Form()
         raise HTTPException(status_code=500, detail='Something went wrong')
     finally:
         file.file.close()
-    insert_values_dopinfo(username,age,gender,name,location,f"{username}-{file.filename}")
+    insert_values_dopinfo(username,age,gender,name,location,f"{username}-{file.filename}",bio)
     request.session['user'] = username
     return RedirectResponse(url="/", status_code=303)
 #-----------------------------------------------------------------------------------------------------------------------------
@@ -184,7 +184,8 @@ async def read_user(request: Request,username:str):
     "age": user['age'],
     "gender": user['gender'],
     "name": user['name'],
-    "location": user['location']
+    "location": user['location'],
+    "email":user['email']
     }
     return templates.TemplateResponse("user.html", context)
     #сдесь нужно сделать так чтоб чел видел обычную страницу(нужно в html поменять display,увести все в левый угол,затем будем делать сами фотки этого человека как в той же инсте или вк )
