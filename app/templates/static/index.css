@@ -3,12 +3,16 @@
   padding: 0;
   box-sizing: border-box;
   font-family: 'Open Sans', sans-serif;
+  overflow-x: hidden;
+
 }
 
 body {
   height: 100vh;
   padding: 10px;
   background: linear-gradient(200deg, #383838db, #000000);
+  overflow-x: hidden;
+
 }
 
 .header {
@@ -18,8 +22,8 @@ body {
 
 .container {
   display: flex;
-  justify-content: space-between; /* Space between logo/menu and registration block */
-  align-items: center; /* Center items vertically */
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .menu {
@@ -61,11 +65,15 @@ a:hover {
   display: flex;
   flex-direction: column; /* Stack login/register vertically */
   align-items: flex-end; /* Align to the right */
-
 }
 
-.login, .register {
-  margin: 5px 0; /* Space between login and register links */
+.user {
+  border: 50px bold #4C514A ;
+  padding: 20px;
+  box-sizing: border-box;
+  width: 100%; /* ширина блока */
+  margin: 50px;
+  background-color:#ffffffdb;
 }
 
 /* Responsive Design */
@@ -78,4 +86,22 @@ a:hover {
   .menu {
       margin-bottom: 10px; /* Space below the menu */
   }
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #fff;
+  border-radius: 5px;
 }

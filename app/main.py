@@ -1,3 +1,4 @@
+from requests import Response
 from fastapi import FastAPI, Form, Depends, HTTPException,Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -8,23 +9,26 @@ from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 import re
 from database import insert_db,update_password,insert_values_dopinfo,update_password_email
-from database import info_user,check_email,check_username,info_user_email,detect_username_from_email,profile
+from database import info_user,check_email,check_username,info_user_email,detect_username_from_email,find_all_users,profile
 from hash import hash_password,verify_password
 from verification import send_email
 import os
+import random
+
 
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                        set up fastapi
 
 app = FastAPI()
+
 #add my static files(css,other)
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "templates"), name="static")
 
-# Middleware for session management
+# Middleware
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this to your needs
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,11 +38,19 @@ templates = Jinja2Templates(directory="templates")
 
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                           base page
-
 @app.get("/")
 async def read_root(request: Request):
     user = request.session.get('user')
-    return templates.TemplateResponse("index.html", {"request": request, "user": user})
+    if user == None:
+        return templates.TemplateResponse("index.html", {"request": request})
+    user_data = info_user(user)
+    if 'location' in user_data and 'gender' in user_data:
+        data = find_all_users(user_data['location'], user_data['gender'])
+    else:
+    # Обработка ошибки или возврат пустого значения
+        data = []
+    #тут бы работать с каким нибудь условным redis для ускорения работы
+    return templates.TemplateResponse("index.html", {"request": request, "user": user,"data": data}, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 #to add profile pages on main menu with filtres to find you second part
 #add your avatar to the right corner
 
@@ -104,6 +116,9 @@ async def send_email_endpoint(request: Request, form_data: dict):
     global key
     key = send_email(email)
     return {"key": key}
+@app.get("/static/static/index.css")
+def get_index_css():
+    return Response(content="templates/static/index.css", media_type="text/css", headers={"Expires": "0"})
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                               login
 
@@ -162,12 +177,16 @@ async def forgot_usrname(request: Request, email: str = Form(...), new_password:
 @app.get("/users/{username}",response_class =HTMLResponse)
 async def read_user(request: Request,username:str):
     user = profile(username)
-    avatar = user['avatar']
-    age = user['age']
-    gender = user['gender']
-    name = user['name']
-    location = user['location']
-    return templates.TemplateResponse("user.html", {"request": request, "user": user,avatar:"avatar",age:"age",gender:"gender",name:"name",location:"location"})
+    context = {
+    "request": request,
+    "user": user['username'],
+    "avatar": user['avatar'],
+    "age": user['age'],
+    "gender": user['gender'],
+    "name": user['name'],
+    "location": user['location']
+    }
+    return templates.TemplateResponse("user.html", context)
     #сдесь нужно сделать так чтоб чел видел обычную страницу(нужно в html поменять display,увести все в левый угол,затем будем делать сами фотки этого человека как в той же инсте или вк )
                                         #!!!!полностью поменять оформление профиля!!!!!!
 

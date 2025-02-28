@@ -42,10 +42,10 @@ def check_email(email):
     return bool([x[0] for x in find_email])
 
 def info_user(username): #-> {username:username,email:email,password : hashed_password}
-    query = text(f"SELECT username, email, password,avatar FROM profile WHERE username = '{username}'")
+    query = text(f"SELECT username, email, password,avatar,location,gender FROM profile WHERE username = '{username}'")
     result = conn.execute(query, {"username": username}).fetchone()
     if result:
-        return dict(zip(['username', 'email', 'password','avatar'], result))
+        return dict(zip(['username', 'email','password','avatar','location','gender'], result))
     else:
         return None
 
@@ -105,5 +105,17 @@ def detect_username_from_email(email):
     result = conn.execute(query).fetchone()
     if result:
         return result[0]
+    else:
+        return None
+def find_all_users(location,gender):
+    if gender == 'male':
+        gender_find = 'female'
+    elif gender == 'female':
+        gender_find = 'male'    
+    query = text(f"SELECT username,location,gender,avatar,age FROM profile WHERE location = '{location}' and gender = '{gender_find}'")
+    result = conn.execute(query).fetchall()
+    if result:
+        keys = ["username", "location", "gender", "avatar","age"]
+        return [dict(zip(keys, value)) for value in result]
     else:
         return None

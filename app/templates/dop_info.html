@@ -13,37 +13,50 @@
                     <div class="user-details">
                                 <div class="input-box">
                             <span class="details">Age</span>
-                            <input type="text" name="age" value = "777" placeholder="Enter your Age">
+                            <input type="text" name="age" placeholder="Enter your Age">
                         </div>
                         <div class="input-box">
                             <span class="details">Gender</span>
                             <select id="gender" name="gender" >
-                                <option value="Male">Male</option>
-                                <option value="Femail">Femail</option>
+                                <option value="male">Male</option>
+                                <option value="female">Femail</option>
                             </select>
                         </div>
 
                         <div class="input-box">
                             <span class="details">Name</span>
-                            <input type="text" name="name" value = 'Мухаммед' placeholder="Enter your Name" >
+                            <input type="text" name="name" placeholder="Enter your Name" >
                         </div>
                         <div class="input-box">
                             <span class="details">Location</span>
-                            <input type="text" name="location" value = 'xdland' placeholder="Enter your location" >
+                            <input type="text" id="city" name="location" placeholder="Enter your location">
+                            <script>
+                            $(document).ready(function() {
+                            var cities = ["Нью-Йорк", "Лондон", "Париж",'Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Нижний Новгород', 'Казань', 'Челябинск', 'Омск', 'Самара', 'Ростов-на-Дону', 'Уфа', 'Красноярск', 'Пермь', 'Воронеж', 'Саратов', 'Тольятти', 'Краснодар', 'Ижевск', 'Ульяновск', 'Барнаул', 'Ярославль', 'Владивосток', 'Иркутск', 'Хабаровск', 'Тюмень', 'Махачкала', 'Набережные Челны', 'Пенза', 'Рязань', 'Липецк', 'Тула', 'Киров', 'Чебоксары', 'Калуга', 'Брянск', 'Иваново', 'Курск', 'Белгород', 'Владимир', 'Сочи', 'Тверь', 'Кемерово', 'Томск', 'Астрахань', 'Псков', 'Орёл', 'Рыбинск', 'Сызрань', 'Златоуст', 'Энгельс', 'Вологда', 'Кострома', 'Таганрог', 'Новороссийск', 'Севастополь', 'Балаково', 'Мытищи', 'Лысьва', 'Курган', 'Стерлитамак', 'Грозный', 'Нальчик', 'Майкоп', 'Пятигорск', 'Ессентуки', 'Минеральные Воды', 'Кисловодск', 'Ставрополь', 'Владикавказ', 'Дербент', 'Хасавюрт', 'Буйнакск', 'Избербаш', 'Каспийск'];
+                            $("#city").autocomplete({
+                                source: cities
+                            });
+                            });
+                            </script>
                         </div>
                         <div class="input-box">
                             <script type="text/javascript">
-                                function previewFile() {
-                                    const preview = document.querySelector('img'); 
-                                    const file = document.querySelector('input[type=file]').files[0];
+                             function previewFile() {
+                                const preview = document.querySelector('img'); 
+                                const file = document.querySelector('input[type=file]').files[0];
+                                if (file.type.match('image.*')) {
                                     const reader = new FileReader();
                                     reader.addEventListener("load", function() {
-                                        preview.src = reader.result; // show image in <img> tag
-                                        uploadFile(file)
+                                    preview.src = reader.result; // show image in <img> tag
+                                    uploadFile(file)
                                     }, false);
                                     if (file) {
-                                        reader.readAsDataURL(file);
+                                    reader.readAsDataURL(file);
                                     }
+                                } else {
+                                    alert('Только картинки!');
+                                    document.querySelector('input[type=file]').value = '';
+                                }
                                 }
                             
                                 function uploadFile(file) {
