@@ -9,7 +9,7 @@ engine = create_engine(f"postgresql+psycopg://postgres:{os.environ['database-rou
 conn = engine.connect()
 metadata = MetaData()
 
-books = Table("profile",metadata,
+table = Table("profile",metadata,
         Column("username", Text,primary_key=True,unique=True),
         Column("email", Text,unique=True),
         Column("password", Text),
