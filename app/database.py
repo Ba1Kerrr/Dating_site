@@ -3,8 +3,9 @@ from sqlalchemy import Integer,Text,Boolean,Column
 from passlib.context import CryptContext
 from sqlalchemy.exc import SQLAlchemyError
 from hash import hash_password,verify_password
-
-engine = create_engine("postgresql+psycopg2://postgres:root@localhost:5432/Dating-site", echo=False)
+from dotenv import load_dotenv
+load_dotenv()
+engine = create_engine(f"postgresql+psycopg://postgres:{os.environ['database-route']} ", echo=False)
 conn = engine.connect()
 metadata = MetaData()
 
