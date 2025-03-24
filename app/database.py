@@ -4,6 +4,7 @@ from passlib.context import CryptContext
 from sqlalchemy.exc import SQLAlchemyError
 from hash import hash_password,verify_password
 from dotenv import load_dotenv
+import os
 load_dotenv()
 engine = create_engine(f"postgresql+psycopg://postgres:{os.environ['database-route']} ", echo=False)
 conn = engine.connect()

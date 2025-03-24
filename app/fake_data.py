@@ -1,11 +1,8 @@
 from faker import Faker
 from sqlalchemy import create_engine, Column, Integer, Text
 from sqlalchemy.orm import declarative_base, sessionmaker
-
+from database import engine
 fake = Faker()
-
-# Create a connection to the PostgreSQL database
-engine = create_engine("postgresql+psycopg2://postgres:root@localhost:5432/Dating-site")
 
 # Create a base class for our table
 Base = declarative_base()
@@ -34,31 +31,33 @@ usernames = set()
 emails = set()
 
 # Generate fake data for 10 users
-for _ in range(100):
-    username = fake.user_name()
-    while username in usernames:
+def create_fake():
+    for _ in range(100):
         username = fake.user_name()
-    usernames.add(username)
+        while username in usernames:
+            username = fake.user_name()
+        usernames.add(username)
 
-    email = fake.email()
-    while email in emails:
         email = fake.email()
-    emails.add(email)
+        while email in emails:
+            email = fake.email()
+        emails.add(email)
 
-    # Create a new user object
-    user = User(
-        username=username,
-        email=email,
-        password=fake.password(),
-        age=fake.random_int(min=18, max=100),
-        gender=fake.random_element(elements=("male", "female")),
-        name=fake.name(),
-        location='Moscow',
-        avatar=fake.image_url()
-    )
+        # Create a new user object
+        user = User(
+            username=username,
+            email=email,
+            password=fake.password(),
+            age=fake.random_int(min=18, max=100),
+            gender=fake.random_element(elements=("male", "female")),
+            name=fake.name(),
+            location='Moscow',
+            avatar=fake.image_url()
+        )
+        print(user.name, user.password)
 
-    # Add the user to the session
-    session.add(user)
+        # Add the user to the session
+        session.add(user)
 
-# Commit the changes to the database
-session.commit()
+    # Commit the changes to the database
+    session.commit()
