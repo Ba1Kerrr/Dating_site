@@ -1,14 +1,14 @@
-А ﻿# Dating Site API
-A FastAPI-based dating site API that allows users to create profiles, search for matches, and communicate with each other.
-![alt text](image-2.png)
+# Dating Site API
+## A FastAPI-based dating site API that allows users to create profiles, search for matches, and communicate with each other.
+![alt text](app/docs/site-example/image-2.png)
 ## Features
 ### User registration and login
-![alt text](image.png)
-![alt text](image-1.png)
-![alt text](image-4.png)
-### Profile creation and editing
+![alt text](app/docs/site-example/image.png)
+![alt text](app/docs/site-example/image-1.png)
+![alt text](app/docs/site-example/image-4.png)
+## Profile creation and editing
 ### Search for matches based on location and gender(only getero)
-![alt text](image-3.png)
+![alt text](app/docs/site-example/image-3.png)
 Messaging system for users to communicate with each other
 ### Integration with PostgreSQL database for storing user data
 Support for file uploads and image processing
@@ -18,12 +18,20 @@ Support for email notifications and password reset
 ### FastAPI 0.65.0+
 ### PostgreSQL 12.4+
 ## Python libraries:
+
 fastapi
 uvicorn
 psycopg2
 jwt
 pydantic
-z# Dating Site API
+## Installation
+pip install -r requirements.txt
+## Running the application
+1. git clone https://github.com/Ba1Kerrr/Dating_site.git
+2. cd Dating_site
+3. enter your email,database route and brevo api key in .env file
+4. uvicorn app.main:app --reload
+# Dating Site API
 
 ### API Endpoints
 

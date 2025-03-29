@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from database import update_password,update_password_email
-from database import info_user,info_user_email,detect_username_from_email
-from hash import hash_password
+from app.database.database import update_password,update_password_email
+from app.database.database import info_user,info_user_email,detect_username_from_email
+from app.hash import hash_password
 router = APIRouter(prefix='/forgot', tags=["forgot"])
 
 templates = Jinja2Templates(directory="templates")

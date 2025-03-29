@@ -1,20 +1,21 @@
 from fastapi import APIRouter, HTTPException, Request, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from database import insert_db,insert_values_dopinfo
-from database import info_user,check_email,check_username
-from hash import hash_password
-from verification import send_email
+from app.database.database import insert_db,insert_values_dopinfo
+from app.database.database import info_user,check_email,check_username
+from app.hash import hash_password
+from app.verification import send_email
 import os
 import re
 from .schemas import UserAddSchemas
 router = APIRouter(prefix='/register', tags=["register"])
 
-templates = Jinja2Templates(directory="templates")
-key = ''
+templates = Jinja2Templates(directory="app/templates")
+
 @router.get("", response_class=HTMLResponse)
 async def register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
+
 @router.post("/register")
 async def register(request: Request, user: UserAddSchemas):
     input_key = request.session.get("input_key")
@@ -64,6 +65,7 @@ async def add_read_user(request:Request, age: int = Form(), gender: str = Form()
 @router.post('/send_email')
 async def send_email_endpoint(request: Request, form_data: dict):
     email = form_data.get("email")
-    global key
     key = send_email(email)
+    request.session['key'] = key
     return {"key": key}
+

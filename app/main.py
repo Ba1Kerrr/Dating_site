@@ -6,18 +6,21 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
-from database import info_user,find_all_users,profile
-from routers.registers import router as register_router
-from routers.login import router as login_router
-from routers.forgot import router as forgot_router
+from app.database.database import info_user,find_all_users,profile
+from app.routers.registers import router as register_router
+from app.routers.login import router as login_router
+from app.routers.forgot import router as forgot_router
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                        set up fastapi
 app = FastAPI()
+
+
 app.include_router(register_router)
 app.include_router(login_router)
 app.include_router(forgot_router)
+
 #add my static files(css,other)
-app.mount("/static", StaticFiles(directory=Path(__file__).parent / "templates"), name="static")
+app.mount("/static", StaticFiles(directory=Path(__file__).parent /"templates"), name="static")
 
 # Middleware
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
@@ -29,7 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # Template configuration
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="app/templates")
 
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                           base page
@@ -81,8 +84,6 @@ async def read_user(request: Request,username:str):
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                                       logout
 
-#-----------------------------------------------------------------------------------------------------------------------------
-#                               Handling JavaScript Functions
 
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                                       dop-info about futures

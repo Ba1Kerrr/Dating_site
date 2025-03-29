@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from database import info_user
-from hash import verify_password
+from app.database.database import info_user
+from app.hash import verify_password
 router = APIRouter(prefix='/login', tags=["login"])
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="app/templates")
 
 @router.get("", response_class=HTMLResponse)
 async def login_form(request: Request):
@@ -19,6 +19,8 @@ async def login(request: Request,username: str = Form(...), password: str = Form
 
     request.session['user'] = username
     return RedirectResponse(url="/", status_code=303)
+#-----------------------------------------------------------------------------------------------------------------------------
+#                               logout
 @router.get("/logout")
 async def logout(request: Request):
     request.session.clear()

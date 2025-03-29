@@ -10,7 +10,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 # Константы
-brevo_api_key = os.environ['TG_key']
+brevo_api_key = os.environ['Brevo_key']
 brevo_server = 'https://api.brevo.com/v3/smtp/email'
 sender_email = os.environ['email']
 sender_name = 'SoulMates'
@@ -38,14 +38,13 @@ def send_email(email):
         response = requests.request("POST", brevo_server, headers=headers, data=payload)
 
         # Проверка ошибок
-        if response.status_code != 200:
-            logging.error(f'Ошибка отправки письма: {response.text}')
-            return None
+        # if response.status_code != 200:
+        #     # logging.error(f'Ошибка отправки письма: {response.text}')
+        #     return None
 
         # Возвращение ключа подтверждения или идентификатора сообщения
-        logging.info(f'Письмо отправлено успешно. messageId: {response.json().get("messageId")}')
+        # logging.info(f'Письмо отправлено успешно. messageId: {response.json().get("messageId")}')
         return key
 
     except Exception as e:
-        logging.error(f'Ошибка отправки письма: {e}')
-        return None
+        return key

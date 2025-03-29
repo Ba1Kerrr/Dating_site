@@ -1,7 +1,7 @@
 from faker import Faker
 from sqlalchemy import create_engine, Column, Integer, Text
 from sqlalchemy.orm import declarative_base, sessionmaker
-from database import engine
+from app.database.database import engine
 fake = Faker()
 
 # Create a base class for our table
