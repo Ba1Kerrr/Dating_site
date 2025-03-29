@@ -33,7 +33,7 @@
                 <script>
                     document.getElementById("send_email_button").addEventListener("click", function() {
                     const email = document.querySelector('input[name="email"]').value;
-                    fetch("/send_email", {
+                    fetch("/register/send_email", {
                         method: "POST",
                         headers: {
                         "Content-Type": "application/json"
