@@ -118,7 +118,7 @@ def find_all_users(location,gender):
         gender_find = 'female'
     elif gender == 'female':
         gender_find = 'male'    
-    query = text(f"SELECT username,location,gender,avatar,age FROM profile WHERE location = '{location}' and gender = '{gender_find}'")
+    query = text(f"SELECT username,location,gender,avatar,age FROM profile WHERE location = '{location}' and gender = '{gender}'")
     result = conn.execute(query).fetchall()
     if result:
         keys = ["username", "location", "gender", "avatar","age"]

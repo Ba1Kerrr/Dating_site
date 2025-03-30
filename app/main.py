@@ -10,11 +10,12 @@ from app.database.database import info_user,find_all_users,profile
 from app.routers.registers import router as register_router
 from app.routers.login import router as login_router
 from app.routers.forgot import router as forgot_router
+from app.routers.logout import router as logout
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                        set up fastapi
 app = FastAPI()
 
-
+app.include_router(logout)
 app.include_router(register_router)
 app.include_router(login_router)
 app.include_router(forgot_router)

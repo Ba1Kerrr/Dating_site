@@ -44,7 +44,7 @@ def send_email(email):
 
         # Возвращение ключа подтверждения или идентификатора сообщения
         # logging.info(f'Письмо отправлено успешно. messageId: {response.json().get("messageId")}')
-        return key
+        return int(key)
 
     except Exception as e:
-        return key
+        return int(key)

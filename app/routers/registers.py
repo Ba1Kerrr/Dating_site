@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import APIRouter, HTTPException, Request, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -16,23 +17,23 @@ templates = Jinja2Templates(directory="app/templates")
 async def register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
-@router.post("/register")
-async def register(request: Request, user: UserAddSchemas):
-    input_key = request.session.get("input_key")
+@router.post("")
+async def register(request: Request, user: Annotated[UserAddSchemas, Form()]):
+    key = request.session.get("key")
     if user.username[0] == "/" or user.username[-1] == "/":
-        raise HTTPException(status_code=400, detail="Username cannot start or end with a slash")
+        raise HTTPException(status_code=400, detail="Username cannot sstart or end with a slash")
     if not re.match("^[a-zA-Z0-9_]+$", user.username):
         raise HTTPException(status_code=400, detail="Username must contain only letters, numbers, and underscores")
     if user.password != user.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
-    elif check_username(user.name) == True:
+    elif check_username(user.username) == True:
         raise HTTPException(status_code=400, detail="Username already registered")
     elif check_email(user.email) == True:
         raise HTTPException(status_code=400, detail="Email already registered")
-    if input_key != key:
+    if user.input_key != key:
         raise HTTPException(status_code=400, detail="Code is incorrect")
-    insert_db(user.name, user.email ,hash_password(user.password))
-    request.session['user'] = user.name
+    insert_db(user.username, user.email ,hash_password(user.password))
+    request.session['user'] = user.username
     return RedirectResponse(url="/register/dop-info", status_code=303)
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                           add some dop-info on your profile(username,age,gender,name,location)
@@ -59,7 +60,6 @@ async def add_read_user(request:Request, age: int = Form(), gender: str = Form()
     finally:
         file.file.close()
     insert_values_dopinfo(username,age,gender,name,location,f"{username}-{file.filename}",bio)
-    request.session['user'] = username
     return RedirectResponse(url="/", status_code=303)
 
 @router.post('/send_email')
@@ -67,5 +67,6 @@ async def send_email_endpoint(request: Request, form_data: dict):
     email = form_data.get("email")
     key = send_email(email)
     request.session['key'] = key
+    print(key)
     return {"key": key}
 
