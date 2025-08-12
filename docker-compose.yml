@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   db:
     image: postgres
@@ -13,7 +11,7 @@ services:
   app:
     build: .
     environment:
-      - DATABASE_URL=postgresql://dating_site_user:7yfMx4CqnuMxkX9iMmUvUCi0hgX8A9Nc@dpg-cvggu4rv2p9s73dl5gcg-a.oregon-postgres.render.com/dating_site"
+      - DATABASE_URL=postgresql://postgres:root/dating_site"
     ports:
       - "8000:8000"
     depends_on:

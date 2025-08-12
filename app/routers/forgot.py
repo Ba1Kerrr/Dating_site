@@ -3,10 +3,11 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from app.database.database import update_password,update_password_email
 from app.database.database import info_user,info_user_email,detect_username_from_email
-from app.hash import hash_password
+from app.funcs.hash import hash_password
 router = APIRouter(prefix='/forgot', tags=["forgot"])
 
 templates = Jinja2Templates(directory="templates")
+
 @router.post("/password")
 async def update_password(request: Request, username: str = Form(...), new_password: str = Form(...)):
     user = info_user(username)
@@ -20,10 +21,12 @@ async def update_password(request: Request, username: str = Form(...), new_passw
         raise HTTPException(status_code=400)
     request.session['user'] = username
     return RedirectResponse(url="/", status_code=303)
-
+#-----------------------------------------------------------------------------------------------------------------------------
+#                                            if u forgot password
 @router.get('/forgot_password',response_class=HTMLResponse)
 async def forgot_password_get(request: Request):
     return templates.TemplateResponse("forgot-password.html", {"request": request})
+
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                            if u forgot username
 

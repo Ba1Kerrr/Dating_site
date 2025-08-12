@@ -4,8 +4,8 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from app.database.database import insert_db,insert_values_dopinfo
 from app.database.database import info_user,check_email,check_username
-from app.hash import hash_password
-from app.verification import send_email
+from app.funcs.hash import hash_password
+from app.funcs.verification import send_email
 import os
 import re
 from .schemas import UserAddSchemas
@@ -13,6 +13,9 @@ router = APIRouter(prefix='/register', tags=["register"])
 
 templates = Jinja2Templates(directory="app/templates")
 
+
+static_dir = os.path.join( os.path.dirname(os.path.dirname(__file__)), "templates", "static")
+print(static_dir)
 @router.get("", response_class=HTMLResponse)
 async def register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
@@ -49,16 +52,19 @@ async def read_user(request: Request):
 async def add_read_user(request:Request, age: int = Form(), gender: str = Form(), name: str = Form(), location: str = Form(),file:UploadFile = File(...),bio:str = Form(...)):
     username = request.session.get('user')
     unique_filename = f"{username}-{file.filename}"
-    static_dir = os.path.join(os.path.dirname(__file__), "templates","static")
     try:
         # contents = file.file.read()
         with open(os.path.join(static_dir, unique_filename), "wb") as f:
             f.write(await file.read())
         
-    except Exception:
-        raise HTTPException(status_code=500, detail='Something went wrong')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error- {e}")
     finally:
         file.file.close()
+    username = request.session.get('user')
+    if not username:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
     insert_values_dopinfo(username,age,gender,name,location,f"{username}-{file.filename}",bio)
     return RedirectResponse(url="/", status_code=303)
 
@@ -67,6 +73,6 @@ async def send_email_endpoint(request: Request, form_data: dict):
     email = form_data.get("email")
     key = send_email(email)
     request.session['key'] = key
-    print(key)
+    print(request.session)
     return {"key": key}
 

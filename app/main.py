@@ -1,6 +1,6 @@
 from requests import Response
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
@@ -11,8 +11,12 @@ from app.routers.registers import router as register_router
 from app.routers.login import router as login_router
 from app.routers.forgot import router as forgot_router
 from app.routers.logout import router as logout
+from dotenv import find_dotenv, load_dotenv
+import os
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                        set up fastapi
+load_dotenv(find_dotenv("app/settings/.env"))
+
 app = FastAPI()
 
 app.include_router(logout)
@@ -24,7 +28,7 @@ app.include_router(forgot_router)
 app.mount("/static", StaticFiles(directory=Path(__file__).parent /"templates"), name="static")
 
 # Middleware
-app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
+app.add_middleware(SessionMiddleware, secret_key=os.environ['SECRET_KEY'])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -34,7 +38,11 @@ app.add_middleware(
 )
 # Template configuration
 templates = Jinja2Templates(directory="app/templates")
-
+#-----------------------------------------------------------------------------------------------------------------------------
+#                                           icon and name page in bar
+@app.get("/favicon.ico", include_in_schema=False)
+async def get_favicon():
+    return FileResponse("app/templates/static/favicon.ico")
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                           base page
 @app.get("/")
@@ -91,7 +99,7 @@ async def read_user(request: Request,username:str):
 
 #and finally steps are :
 # to add profile pages on main menu with filtres to find you second part
-#incude in my project redis,nginx
+#incude in my project redis,nginx,cms
 # in next steps is create and use server
 #add redis,kafka
 

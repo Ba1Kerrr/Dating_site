@@ -2,16 +2,20 @@ from sqlalchemy import create_engine,text,insert,MetaData,Table,values
 from sqlalchemy import Integer,Text,Boolean,Column
 from passlib.context import CryptContext
 from sqlalchemy.exc import SQLAlchemyError
-from app.hash import hash_password,verify_password
+from app.funcs.hash import hash_password,verify_password
 from dotenv import find_dotenv, load_dotenv
 import os
 
-load_dotenv(find_dotenv())
-engine = create_engine(f"postgresql+psycopg://postgres:{os.environ['DATABASE_ROUTE']}", echo=False)
-conn = engine.connect()
+load_dotenv(find_dotenv("app/settings/.env"))
+engine = create_engine(f"postgresql+psycopg2://{os.environ['DATABASE_ROUTE']}", echo=False)
+try:
+    conn = engine.connect()
+except Exception as e:
+    print("""Connection to database failed.""")
 metadata = MetaData()
 
 table = Table("profile",metadata,
+        Column("id",Integer,primary_key=True),
         Column("username", Text,primary_key=True,unique=True),
         Column("email", Text,unique=True),
         Column("password", Text),
@@ -22,6 +26,7 @@ table = Table("profile",metadata,
         Column("avatar", Text),
         Column("bio", Text)
 )
+
 
 metadata.create_all(engine)
 
@@ -34,6 +39,7 @@ def insert_values_dopinfo(username:str,age:int, gender:str, name:str,location:st
     query = text(f"""UPDATE PROFILE 
 SET AGE = {age}, GENDER = '{gender}', NAME = '{name}', LOCATION = '{location}',avatar = '{avatar}',bio = '{bio}'
 WHERE username = '{username}';""")
+    print(query)
     conn.execute(query)
     conn.commit()
 #this 2 checks for username and email return True if user exists or False if not

@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from app.database.database import info_user
-from app.hash import verify_password
+from app.funcs.hash import verify_password
 router = APIRouter(prefix='/login', tags=["login"])
 
 templates = Jinja2Templates(directory="app/templates")
@@ -19,5 +19,3 @@ async def login(request: Request,username: str = Form(...), password: str = Form
 
     request.session['user'] = username
     return RedirectResponse(url="/", status_code=303)
-#-----------------------------------------------------------------------------------------------------------------------------
-#                               logout

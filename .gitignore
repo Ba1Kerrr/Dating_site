@@ -2,5 +2,7 @@
 .myenv
 .env
 .venv
+venv
+app/venv
 __pycache__
 .vscode
