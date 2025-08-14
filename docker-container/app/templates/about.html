@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link href="{{ url_for('static', path='./static/index.css') }}" rel="stylesheet">   
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+
+
+</head>
+<body>
+    <div class = "header">
+        <div class="container">
+            <div class="menu">
+                <div class="logo">
+                    <img src = "{{ url_for('static', path='./static/logo.png') }}" alt="Logo"></li>
+                </div>
+                    <ul>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="https://www.youtube.com/">youtube</a></li>
+                    </ul>
+            </div>
+        </div>
+    </div>
+    <div class = "content">
+        <a>hello,{{ username }}</a>
+    </div>
+</body>
+</html>

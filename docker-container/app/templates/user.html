@@ -1,0 +1,59 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{{ url_for('static', path='./static/user.css') }}" rel="stylesheet">   
+
+</head>
+<body>
+    <div class="container">
+        <div class="image">
+            <img src="{{ url_for('static', path='./static/' + avatar) }}" alt="User  Avatar">
+        </div>
+        <div class = "info">
+            <a class = "Username">{{user}}</a>
+            <a class = "age">{{age}}</a>
+            <a class = "gender">{{gender}}</a>
+            <a class = "location">{{location}}</a>
+            <a class = "name">{{name}}</a>
+        </div>
+    </div>
+</body>
+</html> -->
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Dating Profile
+  </title>
+    <link href="{{ url_for('static', path='./static/user.css') }}" rel="stylesheet">   
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+
+
+ </head>
+<body>
+    <div class="container">
+        <div class = "text_avatar">
+            <div class="image">
+                <img src="{{ url_for('static', path='./static/' + avatar) }}" alt="User  Avatar">
+            </div>
+            <div class = "info">
+                <h1>Short Info</h1>
+                <a>{{ name }}</a>
+                <a>{{ user }}</a>
+                <a>{{ age }} years old</a>
+                <a>{{ gender }}</a>
+            </div>
+        </div>
+        <div class = "bio">
+            <a>{{ bio }}</a>
+        </div>
+        <div class="contact_information">
+            <h1>Contact Information</h1>
+            <a>{{ email }}</a>
+        </div>
+    </div>
+ </body>
+</html>

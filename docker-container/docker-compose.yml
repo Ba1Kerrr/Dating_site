@@ -1,0 +1,34 @@
+services:
+  db:
+    container_name: postgres-Dating_site
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=Dating_site
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    env_file:
+      - app/settings/.env
+  app:
+    container_name: Fastapi-Dating_site
+    build: .
+    # environment:
+    #   - DATABASE_URL=postgresql://postgres:root/Dating_site"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn app.main:app --reload --host 0.0.0.0 --port 8000'
+    volumes:
+      - ./app:/app/app
+    restart: unless-stopped
+    env_file:
+      - app/settings/.env
+    environment:
+      - DATABASE_URL=postgresql://postgres:root@db/Dating_site
+volumes:
+  db-data:

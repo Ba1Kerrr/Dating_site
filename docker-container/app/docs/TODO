@@ -1,0 +1,9 @@
+Update database.py to upload data to the database:
+        with Session(autoflush=False, bind=engine) as db:
+            # создаем объект Person для добавления в бд
+            tom = Person(name="Tom", age=38)
+            db.add(tom)     # добавляем в бд
+            db.commit()     # сохраняем изменения
+Docker fix
+Add cms to my site
+Add nginx to my site
