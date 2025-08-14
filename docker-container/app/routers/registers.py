@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Request, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from app.database.database import insert_db,insert_values_dopinfo
-from app.database.database import info_user,check_email,check_username,get_id
+from app.database.database import info_user,check_email,check_username
 from app.funcs.hash import hash_password
 from app.funcs.verification import send_email
 import os
@@ -14,7 +14,8 @@ router = APIRouter(prefix='/register', tags=["register"])
 templates = Jinja2Templates(directory="app/templates")
 
 
-static_dir = os.path.join( os.path.dirname(os.path.dirname(__file__)), "templates", "static","personal_info")
+static_dir = os.path.join( os.path.dirname(os.path.dirname(__file__)), "templates", "static")
+
 @router.get("", response_class=HTMLResponse)
 async def register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
@@ -23,7 +24,7 @@ async def register_form(request: Request):
 async def register(request: Request, user: Annotated[UserAddSchemas, Form()]):
     key = request.session.get("key")
     if user.username[0] == "/" or user.username[-1] == "/":
-        raise HTTPException(status_code=400, detail="Username cannot start or end with a slash")
+        raise HTTPException(status_code=400, detail="Username cannot sstart or end with a slash")
     if not re.match("^[a-zA-Z0-9_]+$", user.username):
         raise HTTPException(status_code=400, detail="Username must contain only letters, numbers, and underscores")
     if user.password != user.confirm_password:
@@ -35,7 +36,6 @@ async def register(request: Request, user: Annotated[UserAddSchemas, Form()]):
     if user.input_key != key:
         raise HTTPException(status_code=400, detail="Code is incorrect")
     insert_db(user.username, user.email ,hash_password(user.password))
-    get = get_id(user.username)['id']
     request.session['user'] = user.username
     return RedirectResponse(url="/register/dop-info", status_code=303)
 #-----------------------------------------------------------------------------------------------------------------------------
