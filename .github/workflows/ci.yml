@@ -34,8 +34,8 @@ jobs:
 
     env:
       DATABASE_ROUTE: postgresql://postgres:postgres@localhost:5432/dating_test
-      SECRET_KEY:     ${{ secrets.SECRET_KEY }}
-      Brevo_key:      ${{ secrets.BREVO_KEY }}
+      SECRET_KEY:     test-secret-key-for-ci
+      Brevo_key:      test-brevo-key-for-ci
       email:          ci@example.com
 
     steps:
@@ -51,7 +51,8 @@ jobs:
         run: pip install -r app/settings/requirements.base.txt pytest pytest-asyncio httpx
 
       - name: Run tests
-        run: pytest app/tests/ -v --tb=short
+        working-directory: app
+        run: pytest tests/ -v --tb=short
 
   lint:
     name: Lint
