@@ -34,7 +34,9 @@ jobs:
 
     env:
       DATABASE_ROUTE: postgresql://postgres:postgres@localhost:5432/dating_test
-      SECRET_KEY:     test-secret-key-for-ci
+      SECRET_KEY:     ${{ secrets.SECRET_KEY }}
+      Brevo_key:      ${{ secrets.BREVO_KEY }}
+      email:          ci@example.com
 
     steps:
       - uses: actions/checkout@v4
@@ -46,7 +48,7 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r app/settings/requirements.txt pytest pytest-asyncio httpx
+        run: pip install -r app/settings/requirements.base.txt pytest pytest-asyncio httpx
 
       - name: Run tests
         run: pytest app/tests/ -v --tb=short

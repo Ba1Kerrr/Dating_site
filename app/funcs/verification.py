@@ -10,9 +10,9 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 # Константы
-brevo_api_key = os.environ['Brevo_key']
+brevo_api_key = os.environ.get('Brevo_key', '')
 brevo_server = 'https://api.brevo.com/v3/smtp/email'
-sender_email = os.environ['email']
+sender_email = os.environ.get('email', '')
 sender_name = 'SoulMates'
 subject = 'Verification'
 
