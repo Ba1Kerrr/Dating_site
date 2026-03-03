@@ -1,0 +1,265 @@
+{
+  "info": {
+    "name": "Dating Site",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Auth на 8000, ML на 8001. Сначала POST /auth/token — получишь access_token, он автоматически подставится в остальные запросы через переменную."
+  },
+  "variable": [
+    { "key": "base_url",     "value": "http://localhost:8000" },
+    { "key": "ml_url",       "value": "http://localhost:8001" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token","value": "" }
+  ],
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "get token",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const r = pm.response.json();",
+                "if (r.access_token)  pm.collectionVariables.set('access_token',  r.access_token);",
+                "if (r.refresh_token) pm.collectionVariables.set('refresh_token', r.refresh_token);",
+                "pm.test('got tokens', () => pm.expect(r.access_token).to.be.a('string'));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/token",
+            "description": "Запусти первым. Токены сохранятся в переменные коллекции автоматически.",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"kirill_000\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "refresh token",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const r = pm.response.json();",
+                "if (r.access_token) pm.collectionVariables.set('access_token', r.access_token);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/refresh",
+            "description": "Вызывать когда access_token истёк (401). Обновляет access автоматически.",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "me",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/me",
+            "description": "Проверить токен и получить свой профиль.",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "register",
+      "item": [
+        {
+          "name": "send verification code",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/register/send_email",
+            "description": "Шлёт код на почту, кладёт в сессию. Вызывать до сабмита формы.",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"newuser@example.com\"\n}" }
+          }
+        },
+        {
+          "name": "create account",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/register",
+            "description": "input_key — код из письма. После успеха редирект на /register/dop-info.",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username",         "value": "newuser" },
+                { "key": "email",            "value": "newuser@example.com" },
+                { "key": "password",         "value": "qwerty12345" },
+                { "key": "confirm_password", "value": "qwerty12345" },
+                { "key": "input_key",        "value": "482910" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "fill profile info",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/register/dop-info",
+            "description": "Заполняется после регистрации. file — аватар обязателен.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "age",      "value": "24",              "type": "text" },
+                { "key": "gender",   "value": "male",            "type": "text" },
+                { "key": "name",     "value": "Ivan",            "type": "text" },
+                { "key": "location", "value": "Moscow",          "type": "text" },
+                { "key": "bio",      "value": "Люблю кофе и код","type": "text" },
+                { "key": "file",     "src": [],                  "type": "file" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "login / logout",
+      "item": [
+        {
+          "name": "login (session)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/login",
+            "description": "Сессионный логин для браузера. Для API используй /auth/token.",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "kirill_000" },
+                { "key": "password", "value": "password123" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/logout",
+            "description": "Чистит сессию."
+          }
+        }
+      ]
+    },
+    {
+      "name": "forgot",
+      "item": [
+        {
+          "name": "change password by username",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/forgot/password",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username",     "value": "kirill_000" },
+                { "key": "new_password", "value": "newpassword99" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "change password by email",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/forgot/username",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "email",        "value": "kirill@example.com" },
+                { "key": "new_password", "value": "newpassword99" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "chat",
+      "item": [
+        {
+          "name": "my chats",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/chat/api/list",
+            "description": "Все чаты с последним сообщением и счётчиком непрочитанных.",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }]
+          }
+        },
+        {
+          "name": "message history",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/chat/api/ksenia_002/history?limit=30&offset=0",
+              "query": [
+                { "key": "limit",  "value": "30" },
+                { "key": "offset", "value": "0" }
+              ]
+            },
+            "description": "История переписки. Меняй ksenia_002 на нужного юзера.",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }]
+          }
+        },
+        {
+          "name": "websocket (info)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/chat/ws/ksenia_002",
+            "description": "WebSocket подключается так:\nws://localhost:8000/chat/ws/ksenia_002?token={{access_token}}\n\nОтправка: { \"text\": \"Привет!\" }\nПолучение: { \"id\": 1, \"sender\": \"kirill_000\", \"text\": \"Привет!\", \"type\": \"message\" }"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ml",
+      "item": [
+        {
+          "name": "health",
+          "request": {
+            "method": "GET",
+            "url": "{{ml_url}}/health",
+            "description": "model_loaded: false — надо запустить train."
+          }
+        },
+        {
+          "name": "train",
+          "request": {
+            "method": "POST",
+            "url": "{{ml_url}}/train",
+            "description": "Обучает на мэтчах из БД. Запускать когда накопились данные."
+          }
+        },
+        {
+          "name": "rank candidates",
+          "request": {
+            "method": "POST",
+            "url": "{{ml_url}}/rank",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_user\": \"kirill_000\",\n  \"candidates\": [\"ksenia_002\", \"maria_004\", \"anna_007\"]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "docs",
+      "item": [
+        { "name": "swagger main", "request": { "method": "GET", "url": "{{base_url}}/docs" } },
+        { "name": "swagger ml",   "request": { "method": "GET", "url": "{{ml_url}}/docs"   } }
+      ]
+    }
+  ]
+}
