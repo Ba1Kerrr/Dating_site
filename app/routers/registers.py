@@ -1,11 +1,12 @@
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, Request, Form, File, UploadFile
+from fastapi import APIRouter, HTTPException, Request, Form, File, UploadFile, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from database.database import insert_db,insert_values_dopinfo
-from database.database import info_user,check_email,check_username
+from database.database import insert_db, insert_values_dopinfo
+from database.database import info_user, check_email, check_username
 from funcs.hash import hash_password
 from funcs.verification import send_email
+from funcs.rate_limit import register_rate_limit, token_rate_limit
 import os
 import re
 from .schemas import UserAddSchemas
@@ -41,15 +42,26 @@ async def register(request: Request, user: Annotated[UserAddSchemas, Form()]):
 #-----------------------------------------------------------------------------------------------------------------------------
 #                                           add some dop-info on your profile(username,age,gender,name,location)
 
-@router.get("/dop-info",response_class =HTMLResponse)
+@router.get("/dop-info", response_class=HTMLResponse)
 async def read_user(request: Request):
     user = request.session.get('user')
-    avatar = info_user(user)['avatar']
-    return templates.TemplateResponse("dop_info.html", {"request": request, "user": user,"avatar":avatar})
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    user_info = info_user(user)
+    if not user_info:
+        return RedirectResponse(url="/register", status_code=303)
+    
+    avatar = user_info.get('avatar', '')
+    return templates.TemplateResponse("dop_info.html", {
+        "request": request, 
+        "user": user,
+        "avatar": avatar
+    })
 
 
 @router.post("/dop-info")
-async def add_read_user(request:Request, age: int = Form(), gender: str = Form(), name: str = Form(), location: str = Form(),file:UploadFile = File(...),bio:str = Form(...)):
+async def add_read_user(request:Request, age: int = Form(), gender: str = Form(), name: str = Form(), location: str = Form(),file:UploadFile = File(...),bio:str = Form(...),_=Depends(register_rate_limit),):
     username = request.session.get('user')
     unique_filename = f"{username}-{file.filename}"
     try:
@@ -69,7 +81,7 @@ async def add_read_user(request:Request, age: int = Form(), gender: str = Form()
     return RedirectResponse(url="/", status_code=303)
 
 @router.post('/send_email')
-async def send_email_endpoint(request: Request, form_data: dict):
+async def send_email_endpoint(request: Request, form_data: dict,_=Depends(register_rate_limit),):
     email = form_data.get("email")
     key = send_email(email)
     request.session['key'] = key

@@ -5,6 +5,7 @@ from fastapi import Depends, HTTPException, WebSocket
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 import os
+from datetime import datetime, timedelta, timezone
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "changeme-set-in-env")
 ALGORITHM  = "HS256"
@@ -15,7 +16,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def create_access_token(username: str) -> str:
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(...)
     return jwt.encode(
         {"sub": username, "exp": expire, "type": "access"},
         SECRET_KEY, algorithm=ALGORITHM
@@ -23,7 +24,7 @@ def create_access_token(username: str) -> str:
 
 
 def create_refresh_token(username: str) -> str:
-    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    expire = now = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     return jwt.encode(
         {"sub": username, "exp": expire, "type": "refresh"},
         SECRET_KEY, algorithm=ALGORITHM

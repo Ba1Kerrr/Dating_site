@@ -14,10 +14,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 10s
 
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: dating-api
     restart: unless-stopped
     ports:
@@ -29,18 +30,10 @@ services:
       - app/settings/.env
     volumes:
       - ./app:/app
-    command: >
-      sh -c "
-        echo 'Ждём готовности БД (compose healthcheck)...' &&
-        uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-      "
+    environment:
+      - ENVIRONMENT=development
       
   ml:
-    depends_on:
-      db:
-        condition: service_healthy
-      api:
-        condition: service_started
     build:
       context: .
       dockerfile: Dockerfile.ml
@@ -48,12 +41,17 @@ services:
     restart: unless-stopped
     ports:
       - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
     env_file:
       - app/settings/.env
     volumes:
-    - ./app/ml/models:/app/ml/models
-    - ./app/ml:/app/ml
-    - ./app/ml_service.py:/app/ml_service.py
+      - ./app/ml/models:/app/ml/models
+      - ./app/ml:/app/ml
+      - ./app/ml_service.py:/app/ml_service.py
+    environment:
+      - ENVIRONMENT=development
 
 volumes:
   postgres_data:
