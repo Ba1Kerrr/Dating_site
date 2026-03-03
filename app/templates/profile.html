@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ profile.name or profile.username }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0e0e12;
+  --surface: #16161c;
+  --border:  #23232e;
+  --text:    #e8e6f0;
+  --muted:   #6b6880;
+  --accent:  #c084fc;
+  --accent2: #f472b6;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Onest', sans-serif; min-height: 100vh; }
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.nav-logo {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+.nav-links { display: flex; gap: 8px; }
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .82rem;
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all .2s;
+}
+.nav-links a:hover { color: var(--text); background: var(--border); }
+
+/* HERO */
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  height: 220px;
+  background: linear-gradient(135deg, #1a0a2e 0%, #0e0e12 50%, #1a0a1a 100%);
+  position: relative;
+}
+
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(192,132,252,.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(244,114,182,.1) 0%, transparent 50%);
+}
+
+.hero-content {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 28px;
+  position: relative;
+}
+
+.avatar-ring {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  margin-top: -55px;
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+}
+
+.avatar-ring img,
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+  border: 3px solid var(--bg);
+}
+
+.profile-header {
+  padding: 16px 0 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profile-name-block {}
+
+.profile-name {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.profile-username {
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.profile-actions { display: flex; gap: 10px; }
+
+.btn {
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-size: .83rem;
+  font-family: 'Onest', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  text-decoration: none;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #0e0e12;
+}
+.btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+/* BODY */
+.body { max-width: 780px; margin: 0 auto; padding: 0 28px 60px; }
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .profile-grid { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.bio-text {
+  font-size: .9rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.bio-text.empty { color: var(--muted); font-style: italic; }
+
+/* STATS */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.stat {
+  background: var(--surface);
+  padding: 18px;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: .72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* INFO LIST */
+.info-list { display: flex; flex-direction: column; gap: 10px; }
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .85rem;
+}
+
+.info-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+.info-label { color: var(--muted); flex-shrink: 0; min-width: 70px; }
+.info-value { color: var(--text); }
+
+/* MUSIC */
+.music-card {
+  background: linear-gradient(135deg, rgba(192,132,252,.08), rgba(244,114,182,.04));
+  border: 1px solid rgba(192,132,252,.2);
+}
+
+.now-playing {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.music-cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  animation: spin 8s linear infinite paused;
+}
+
+.music-cover.playing { animation-play-state: running; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.music-info { flex: 1; min-width: 0; }
+.music-title { font-size: .88rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-artist { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+
+.music-controls { display: flex; gap: 8px; }
+.ctrl-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  transition: color .2s;
+}
+.ctrl-btn:hover, .ctrl-btn.active { color: var(--accent); }
+
+/* BADGES */
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge {
+  background: rgba(192,132,252,.1);
+  border: 1px solid rgba(192,132,252,.2);
+  color: var(--accent);
+  font-size: .75rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* EDIT FORM */
+.edit-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.edit-overlay.open { display: flex; }
+
+.edit-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  width: 90%;
+  max-width: 460px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.edit-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: .95rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: .78rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
+.form-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  font-size: .88rem;
+  outline: none;
+  transition: border-color .2s;
+}
+.form-input:focus { border-color: var(--accent); }
+textarea.form-input { resize: vertical; min-height: 80px; }
+
+.form-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.edit-modal { animation: fadeIn .2s ease; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">ДАТИНГ</a>
+  <div class="nav-links">
+    <a href="/">Лента</a>
+    <a href="/chat">Чаты</a>
+    <a href="/profile/{{ profile.username }}">Профиль</a>
+    <a href="/logout">Выйти</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="profile-header">
+      <div style="display:flex;align-items:flex-end;gap:18px">
+        <div class="avatar-ring">
+          {% if profile.avatar %}
+          <img src="/static/{{ profile.avatar }}" alt="{{ profile.name or profile.username }}">
+          {% else %}
+          <div class="avatar-placeholder">{{ (profile.name or profile.username)[0]|upper }}</div>
+          {% endif %}
+        </div>
+        <div class="profile-name-block">
+          <div class="profile-name">{{ profile.name or profile.username }}</div>
+          <div class="profile-username">@{{ profile.username }}</div>
+        </div>
+      </div>
+      <div class="profile-actions">
+        {% if is_own %}
+        <button class="btn btn-outline" onclick="openEdit()">✏ Редактировать</button>
+        {% else %}
+        <a href="/chat/{{ profile.username }}" class="btn btn-primary">💬 Написать</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="body">
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-value" id="matches-count">—</div>
+      <div class="stat-label">Мэтчей</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">{{ profile.age or '—' }}</div>
+      <div class="stat-label">Лет</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="messages-count">—</div>
+      <div class="stat-label">Сообщений</div>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+    <div>
+      <!-- BIO -->
+      <div class="card">
+        <div class="card-title">О себе</div>
+        {% if profile.bio %}
+        <div class="bio-text">{{ profile.bio }}</div>
+        {% else %}
+        <div class="bio-text empty">Пока ничего не написано</div>
+        {% endif %}
+      </div>
+
+      <!-- MUSIC (заглушка — можно подключить Spotify API) -->
+      <div class="card music-card">
+        <div class="card-title">🎵 Сейчас играет</div>
+        <div class="now-playing">
+          <div class="music-cover" id="music-cover">♪</div>
+          <div class="music-info">
+            <div class="music-title" id="music-title">Не слушает ничего</div>
+            <div class="music-artist" id="music-artist">—</div>
+          </div>
+          <div class="music-controls">
+            <button class="ctrl-btn" id="play-btn" onclick="togglePlay()">▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAGS -->
+      <div class="card">
+        <div class="card-title">Теги</div>
+        <div class="badges">
+          {% if profile.location %}<span class="badge">📍 {{ profile.location }}</span>{% endif %}
+          {% if profile.gender %}<span class="badge">{{ '👨' if profile.gender == 'male' else '👩' }} {{ 'Парень' if profile.gender == 'male' else 'Девушка' }}</span>{% endif %}
+          {% if profile.age %}<span class="badge">🎂 {{ profile.age }} лет</span>{% endif %}
+          <span class="badge">✨ На сайте</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div>
+      <div class="card">
+        <div class="card-title">Инфо</div>
+        <div class="info-list">
+          <div class="info-row">
+            <span class="info-icon">📍</span>
+            <span class="info-label">Город</span>
+            <span class="info-value">{{ profile.location or '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">📧</span>
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ profile.email if is_own else '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">🎂</span>
+            <span class="info-label">Возраст</span>
+            <span class="info-value">{{ profile.age or '—' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+{% if is_own %}
+<div class="edit-overlay" id="edit-overlay" onclick="closeEditOutside(event)">
+  <div class="edit-modal">
+    <div class="edit-title">Редактировать профиль</div>
+    <form method="POST" action="/profile/{{ profile.username }}/edit" enctype="multipart/form-data">
+      <div class="form-group">
+        <label class="form-label">Имя</label>
+        <input class="form-input" name="name" value="{{ profile.name or '' }}" placeholder="Твоё имя">
+      </div>
+      <div class="form-group">
+        <label class="form-label">О себе</label>
+        <textarea class="form-input" name="bio" placeholder="Расскажи о себе...">{{ profile.bio or '' }}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Город</label>
+        <input class="form-input" name="location" value="{{ profile.location or '' }}" placeholder="Москва">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Возраст</label>
+        <input class="form-input" name="age" type="number" value="{{ profile.age or '' }}" min="18" max="99">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Аватар</label>
+        <input class="form-input" name="file" type="file" accept="image/*">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <button type="button" class="btn btn-outline" onclick="closeEdit()">Отмена</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<script>
+function openEdit() {
+  document.getElementById("edit-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeEdit() {
+  document.getElementById("edit-overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+function closeEditOutside(e) {
+  if (e.target === document.getElementById("edit-overlay")) closeEdit();
+}
+
+// Music player mock (замени на Spotify/VK Music API)
+var playing = false;
+function togglePlay() {
+  playing = !playing;
+  var btn = document.getElementById("play-btn");
+  var cover = document.getElementById("music-cover");
+  btn.textContent = playing ? "⏸" : "▶";
+  if (playing) {
+    cover.classList.add("playing");
+    document.getElementById("music-title").textContent = "Подключи Spotify API";
+    document.getElementById("music-artist").textContent = "для реальных треков";
+  } else {
+    cover.classList.remove("playing");
+  }
+}
+</script>
+</body>
+</html>

@@ -1,21 +1,59 @@
 services:
   db:
-    image: postgres
-    environment:
-      - POSTGRES_DB=Dating-site
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=root
+    image: postgres:16
+    container_name: dating-postgres
+    restart: unless-stopped
+    env_file:
+      - app/settings/.env
+    ports:
+      - "5433:5432"
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
-  app:
+  api:
     build: .
-    environment:
-      - DATABASE_URL=postgresql://postgres:root/dating_site"
+    container_name: dating-api
+    restart: unless-stopped
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    env_file:
+      - app/settings/.env
+    volumes:
+      - ./app:/app
+    command: >
+      sh -c "
+        echo 'Ждём готовности БД (compose healthcheck)...' &&
+        uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      "
+      
+  ml:
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+    build:
+      context: .
+      dockerfile: Dockerfile.ml
+    container_name: dating-ml
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    env_file:
+      - app/settings/.env
+    volumes:
+    - ./app/ml/models:/app/ml/models
+    - ./app/ml:/app/ml
+    - ./app/ml_service.py:/app/ml_service.py
 
 volumes:
-  db-data:
+  postgres_data:

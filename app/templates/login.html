@@ -1,30 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link href="{{ url_for('static', path='./static/login.css') }}" rel="stylesheet">
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-
+    <title>SoulMates — Вход</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='static/login.css') }}">
 </head>
 <body>
     <div class="container">
-        <div class="title">Login</div>
-        <hr>
+        <div class="title">Добро пожаловать</div>
+        <div class="subtitle">Войдите в свой аккаунт SoulMates</div>
+        
         <div class="content">
-            <form action="/login" method="post">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required><br><br>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required><br><br>
-                <input type="submit" value="Login">
+            <form action="/login" method="post" id="login-form">
+                <div class="input-box">
+                    <span class="details">Имя пользователя</span>
+                    <div class="input-wrapper">
+                        <input type="text" id="username" name="username" placeholder="username" required autocomplete="username">
+                    </div>
+                </div>
+                
+                <div class="input-box">
+                    <span class="details">Пароль</span>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+                        <button type="button" class="toggle-password" id="togglePassword" aria-label="Показать пароль">👁️</button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText"></div>
+                </div>
+                
+                <div class="button-container">
+                    <input type="submit" value="Войти">
+                </div>
             </form>
-        <br>
-        </div>
-        <div class="content">
-        <a href = "/forgot_password">forgot a password<a>
+            
+            <a href="/forgot_password" class="forgot-link">Забыли пароль?</a>
         </div>
     </div>
+
+    <div id="toast-container"></div>
+
+    <script src="{{ url_for('static', path='static/js/login_auth.js') }}"></script>
 </body>
 </html>

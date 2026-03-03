@@ -2,20 +2,20 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Request, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from app.database.database import insert_db,insert_values_dopinfo
-from app.database.database import info_user,check_email,check_username
-from app.funcs.hash import hash_password
-from app.funcs.verification import send_email
+from database.database import insert_db,insert_values_dopinfo
+from database.database import info_user,check_email,check_username
+from funcs.hash import hash_password
+from funcs.verification import send_email
 import os
 import re
 from .schemas import UserAddSchemas
 router = APIRouter(prefix='/register', tags=["register"])
 
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory="templates")
 
 
 static_dir = os.path.join( os.path.dirname(os.path.dirname(__file__)), "templates", "static")
-print(static_dir)
+
 @router.get("", response_class=HTMLResponse)
 async def register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})

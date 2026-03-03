@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 
 router = APIRouter(prefix='', tags=["logout"])
 
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory="templates")
 
 @router.get("/logout")
 async def logout(request: Request):

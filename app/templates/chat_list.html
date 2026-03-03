@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сообщения</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0e0e12;
+  --surface: #16161c;
+  --border:  #23232e;
+  --text:    #e8e6f0;
+  --muted:   #6b6880;
+  --accent:  #c084fc;
+  --online:  #34d399;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.nav-logo {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.nav-links { display: flex; gap: 8px; }
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .82rem;
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all .2s;
+}
+.nav-links a:hover, .nav-links a.active {
+  color: var(--text);
+  background: var(--border);
+}
+
+/* LAYOUT */
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 32px 20px;
+  width: 100%;
+}
+
+.page-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -.03em;
+}
+
+.page-sub {
+  color: var(--muted);
+  font-size: .85rem;
+  margin-bottom: 28px;
+}
+
+/* SEARCH */
+.search-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-wrap input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px 12px 42px;
+  color: var(--text);
+  font-family: 'Onest', sans-serif;
+  font-size: .88rem;
+  outline: none;
+  transition: border-color .2s;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap input::placeholder { color: var(--muted); }
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* CHAT LIST */
+.chat-list { display: flex; flex-direction: column; gap: 2px; }
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background .15s;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+
+.chat-item:hover { background: var(--surface); }
+.chat-item.unread { background: rgba(192, 132, 252, .06); }
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent);
+  font-family: 'Unbounded', sans-serif;
+}
+
+.avatar-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.avatar-wrap { position: relative; flex-shrink: 0; }
+
+.online-dot {
+  width: 11px;
+  height: 11px;
+  background: var(--online);
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+}
+
+.chat-info { flex: 1; min-width: 0; }
+
+.chat-name {
+  font-weight: 500;
+  font-size: .93rem;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-last {
+  color: var(--muted);
+  font-size: .8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-item.unread .chat-last { color: var(--text); }
+
+.chat-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.chat-time {
+  font-size: .72rem;
+  color: var(--muted);
+}
+
+.unread-badge {
+  background: var(--accent);
+  color: #0e0e12;
+  font-size: .68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.empty-icon { font-size: 2.5rem; margin-bottom: 14px; }
+.empty h3 { font-size: 1rem; margin-bottom: 6px; color: var(--text); font-family: 'Unbounded', sans-serif; font-size: .9rem; }
+.empty p { font-size: .82rem; line-height: 1.6; }
+
+/* DIVIDER */
+.section-label {
+  font-size: .7rem;
+  letter-spacing: .1em;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding: 16px 4px 8px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.chat-item {
+  animation: fadeUp .3s ease both;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">ДАТИНГ</a>
+  <div class="nav-links">
+    <a href="/">Лента</a>
+    <a href="/chat" class="active">Чаты</a>
+    <a href="/profile/{{ user }}">Профиль</a>
+    <a href="/logout">Выйти</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 class="page-title">Сообщения</h1>
+  <p class="page-sub">{{ chats|length }} активных чатов</p>
+
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search" placeholder="Поиск по имени..." oninput="filterChats(this.value)">
+  </div>
+
+  {% if chats %}
+    {% set has_unread = chats | selectattr('unread_count', 'gt', 0) | list %}
+    {% if has_unread %}
+    <div class="section-label">Непрочитанные</div>
+    <div class="chat-list" id="unread-list">
+      {% for chat in chats %}
+      {% if chat.unread_count > 0 %}
+      <a class="chat-item unread" href="/chat/{{ chat.companion }}"
+         data-name="{{ chat.companion }}" style="animation-delay: {{ loop.index0 * 40 }}ms">
+        <div class="avatar-wrap">
+          {% if chat.avatar %}
+          <img class="avatar-img" src="/static/{{ chat.avatar }}" alt="{{ chat.companion }}"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="avatar" style="display:none">{{ chat.companion[0]|upper }}</div>
+          {% else %}
+          <div class="avatar">{{ chat.companion[0]|upper }}</div>
+          {% endif %}
+        </div>
+        <div class="chat-info">
+          <div class="chat-name">{{ chat.companion }}</div>
+          <div class="chat-last">{{ chat.last_message or 'Нет сообщений' }}</div>
+        </div>
+        <div class="chat-meta">
+          {% if chat.last_message_at %}
+          <div class="chat-time">{{ chat.last_message_at.strftime('%H:%M') }}</div>
+          {% endif %}
+          <div class="unread-badge">{{ chat.unread_count }}</div>
+        </div>
+      </a>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="section-label">Все чаты</div>
+    {% endif %}
+
+    <div class="chat-list" id="all-list">
+      {% for chat in chats %}
+      {% if chat.unread_count == 0 %}
+      <a class="chat-item" href="/chat/{{ chat.companion }}"
+         data-name="{{ chat.companion }}" style="animation-delay: {{ loop.index0 * 40 }}ms">
+        <div class="avatar-wrap">
+          {% if chat.avatar %}
+          <img class="avatar-img" src="/static/{{ chat.avatar }}" alt="{{ chat.companion }}"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="avatar" style="display:none">{{ chat.companion[0]|upper }}</div>
+          {% else %}
+          <div class="avatar">{{ chat.companion[0]|upper }}</div>
+          {% endif %}
+        </div>
+        <div class="chat-info">
+          <div class="chat-name">{{ chat.companion }}</div>
+          <div class="chat-last">{{ chat.last_message or 'Нет сообщений' }}</div>
+        </div>
+        <div class="chat-meta">
+          {% if chat.last_message_at %}
+          <div class="chat-time">{{ chat.last_message_at.strftime('%H:%M') }}</div>
+          {% endif %}
+        </div>
+      </a>
+      {% endif %}
+      {% endfor %}
+    </div>
+
+  {% else %}
+  <div class="empty">
+    <div class="empty-icon">💬</div>
+    <h3>Пока нет чатов</h3>
+    <p>Сделай мэтч с кем-нибудь<br>и начни общение</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function filterChats(query) {
+  var items = document.querySelectorAll(".chat-item");
+  var q = query.toLowerCase().trim();
+  items.forEach(function(item) {
+    var name = (item.dataset.name || "").toLowerCase();
+    item.style.display = (!q || name.includes(q)) ? "" : "none";
+  });
+}
+</script>
+</body>
+</html>

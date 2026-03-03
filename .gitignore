@@ -1,8 +1,8 @@
-.myenv
+myenv
 .env
-.venv
 venv
-app/venv
 __pycache__
 .vscode
-app/__pycache__
+local
+personal_info/*
+!personal_info/.gitkeep
