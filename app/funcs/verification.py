@@ -20,6 +20,7 @@ def send_email(email):
     try:
         # Код для отправки письма
         text_content = key = str(random.randint(100000, 999999))
+        print(f'Ключ для {email}: {key}')
         # Создание запроса
         payload = json.dumps({
             "sender": {"name": sender_name , "email": sender_email},

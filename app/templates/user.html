@@ -1,59 +1,110 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{{ url_for('static', path='./static/user.css') }}" rel="stylesheet">   
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Профиль — SoulMates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/profile.css') }}">
 </head>
 <body>
-    <div class="container">
-        <div class="image">
-            <img src="{{ url_for('static', path='./static/' + avatar) }}" alt="User  Avatar">
-        </div>
-        <div class = "info">
-            <a class = "Username">{{user}}</a>
-            <a class = "age">{{age}}</a>
-            <a class = "gender">{{gender}}</a>
-            <a class = "location">{{location}}</a>
-            <a class = "name">{{name}}</a>
-        </div>
-    </div>
-</body>
-</html> -->
-<html lang="en">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>
-   Dating Profile
-  </title>
-    <link href="{{ url_for('static', path='./static/user.css') }}" rel="stylesheet">   
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-
-
- </head>
 <body>
-    <div class="container">
-        <div class = "text_avatar">
-            <div class="image">
-                <img src="{{ url_for('static', path='./static/' + avatar) }}" alt="User  Avatar">
-            </div>
-            <div class = "info">
-                <h1>Short Info</h1>
-                <a>{{ name }}</a>
-                <a>{{ user }}</a>
-                <a>{{ age }} years old</a>
-                <a>{{ gender }}</a>
-            </div>
-        </div>
-        <div class = "bio">
-            <a>{{ bio }}</a>
-        </div>
-        <div class="contact_information">
-            <h1>Contact Information</h1>
-            <a>{{ email }}</a>
-        </div>
+<nav>
+  <a class="nav-logo" href="/">SOULMATES</a>
+  <div class="nav-links">
+    <a href="/">Лента</a>
+    <a href="/chat">Чаты</a>
+    <a href="/about">О проекте</a>
+    <a href="/logout">Выйти</a>
+  </div>
+</nav>
+
+<div class="hero-bg"></div>
+
+<div class="container">
+  <div class="profile-head">
+    <div class="profile-head-left">
+      <div class="avatar-ring">
+        {% if avatar %}
+        <img src="{{ url_for('static', path='./static/' + avatar) }}" alt="{{ user }}">
+        {% else %}
+        <div class="avatar-placeholder">{{ user[0]|upper }}</div>
+        {% endif %}
+      </div>
+      <div class="name-block">
+        <div class="profile-name">{{ name or user }}</div>
+        <div class="profile-handle">@{{ user }}</div>
+      </div>
     </div>
- </body>
+    <div class="profile-actions">
+      <a href="/chat/{{ user }}" class="btn btn-primary">💬 Написать</a>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-value">{{ age or '—' }}</div>
+      <div class="stat-label">Лет</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">{{ gender[0]|upper if gender else '—' }}</div>
+      <div class="stat-label">Пол</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">{{ location[:3]|upper if location else '—' }}</div>
+      <div class="stat-label">Город</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="card-title">О себе</div>
+        {% if bio %}
+        <div class="bio-text">{{ bio }}</div>
+        {% else %}
+        <div class="bio-empty">Пользователь пока ничего не написал</div>
+        {% endif %}
+      </div>
+      <div class="card">
+        <div class="card-title">Теги</div>
+        <div class="badges">
+          {% if location %}<span class="badge">📍 {{ location }}</span>{% endif %}
+          {% if gender %}<span class="badge">{{ '👨 Парень' if gender == 'male' else '👩 Девушка' }}</span>{% endif %}
+          {% if age %}<span class="badge">🎂 {{ age }} лет</span>{% endif %}
+          <span class="badge">✨ На сайте</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title">Инфо</div>
+        <div class="info-list">
+          <div class="info-row">
+            <span class="info-icon">📍</span>
+            <span class="info-label">Город</span>
+            <span class="info-value">{{ location or '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">🎂</span>
+            <span class="info-label">Возраст</span>
+            <span class="info-value">{{ age or '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">👤</span>
+            <span class="info-label">Пол</span>
+            <span class="info-value">{{ 'Мужской' if gender == 'male' else 'Женский' if gender == 'female' else '—' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+  <script src="{{ url_for('static', path='static/js/utils.js') }}"></script>
+</body>
 </html>

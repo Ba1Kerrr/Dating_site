@@ -22,7 +22,7 @@ _stats = {
 
 async def rate_limit(
     request: Request, 
-    max_requests: int = 10, 
+    max_requests: int = 10000, 
     window_seconds: int = 60,
     endpoint_name: str = None
 ):
@@ -70,7 +70,7 @@ async def rate_limit(
         _request_log[ip].append(now)
 
 
-def make_rate_limiter(max_requests: int = 10, window_seconds: int = 60, endpoint: str = None):
+def make_rate_limiter(max_requests: int = 10000, window_seconds: int = 60, endpoint: str = None):
     """
     Фабрика для создания лимитеров с разными настройками.
     """
@@ -173,7 +173,7 @@ async def cleanup_old_stats():
 
 
 # Готовые лимитеры для роутов
-login_rate_limit    = make_rate_limiter(max_requests=5,  window_seconds=60, endpoint="login")
-register_rate_limit = make_rate_limiter(max_requests=3,  window_seconds=300, endpoint="register")
-token_rate_limit    = make_rate_limiter(max_requests=10, window_seconds=60, endpoint="token")
-forgot_rate_limit   = make_rate_limiter(max_requests=3,  window_seconds=300, endpoint="forgot")
+login_rate_limit    = make_rate_limiter(max_requests=50000,  window_seconds=1, endpoint="login")
+register_rate_limit = make_rate_limiter(max_requests=30000,  window_seconds=1, endpoint="register")
+token_rate_limit    = make_rate_limiter(max_requests=100000, window_seconds=1, endpoint="token")
+forgot_rate_limit   = make_rate_limiter(max_requests=300000,  window_seconds=1, endpoint="forgot")

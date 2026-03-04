@@ -1,36 +1,50 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <link href="{{ url_for('static', path='./static/forgot_password.css') }}" rel="stylesheet">   
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoulMates — Восстановление аккаунта</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/auth.css') }}">
 </head>
 <body>
-    <div class="container">
-        <div class="title">Forgot username form</div>
-        <hr>
-        <div class="content">
-          <form method="post" id="form" action="/forgot_username">
-            <div class="user-details">
-                <div class="input-box">
-                    <span class="details">Email</span>
-                    <input type="email" name="email" placeholder="Enter your email" required>
-                </div>
-                <div class="input-box">
-                    <span class="details">New password</span>
-                    <input type="new_password" name="new_password" placeholder="Enter your new password" required>
-                </div>
-                <div class="button-container">
-                    <div class="button">
-                        <input type="submit" value="submit">
-                </div>
-            </div>
-         </form>
-        </div>
+<body>
+<nav>
+  <a class="nav-logo" href="/">SOULMATES</a>
+  <div class="nav-links">
+    <a href="/login">Войти</a>
+    <a href="/register">Регистрация</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="card">
+    <span class="back-icon">📧</span>
+    <div class="card-logo">Забыли имя?</div>
+    <div class="card-subtitle">Введите email и установите новый пароль для входа</div>
+
+    <form method="post" action="/forgot_username">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" name="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Новый пароль</label>
+        <input class="form-input" type="password" name="new_password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="submit-btn">Восстановить</button>
+    </form>
+
+    <div class="links">
+      <a href="/forgot_password">Знаю имя — забыл пароль</a>
+      <a href="/login">← Вернуться ко входу</a>
     </div>
+  </div>
+</div>
+    
+  <script src="{{ url_for('static', path='static/js/utils.js') }}"></script>
 </body>
 </html>

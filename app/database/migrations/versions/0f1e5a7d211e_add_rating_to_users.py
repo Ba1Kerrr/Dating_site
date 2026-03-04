@@ -1,0 +1,26 @@
+"""add rating to users
+
+Revision ID: 0f1e5a7d211e
+Revises: 
+Create Date: 2026-03-04 20:50:59.925411
+"""
+from typing import Sequence, Union
+from alembic import op
+import sqlalchemy as sa
+
+
+revision: str = '0f1e5a7d211e'
+down_revision: Union[str, None] = None
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    op.add_column(
+        "users",
+        sa.Column("rating", sa.Integer(), server_default="0", nullable=False),
+    )
+
+
+def downgrade() -> None:
+    op.drop_column("users", "rating")

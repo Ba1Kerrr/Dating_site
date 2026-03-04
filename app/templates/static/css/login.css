@@ -1,0 +1,309 @@
+/* login.css — чистый тёмный стиль */
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #030303;
+    font-family: 'Inter', sans-serif;
+    padding: 16px;
+}
+
+/* Контейнер формы */
+.container {
+    width: 100%;
+    max-width: 400px;
+    background: #111112;
+    border-radius: 28px;
+    padding: 32px;
+    border: 1px solid #242426;
+    box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.8);
+}
+
+/* Заголовок */
+.title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+}
+
+/* Полоска под заголовком */
+.title::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 3px;
+    background: #c084fc;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+/* Подзаголовок */
+.subtitle {
+    color: #8f8f9a;
+    font-size: 14px;
+    margin: 16px 0 28px;
+    line-height: 1.5;
+}
+
+/* Контент */
+.content {
+    width: 100%;
+}
+
+/* Блок инпута */
+.input-box {
+    margin-bottom: 20px;
+}
+
+/* Лейбл */
+.details {
+    display: block;
+    color: #d4d4d8;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+/* Обёртка для инпута и кнопки */
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Инпут */
+.input-wrapper input {
+    width: 100%;
+    height: 48px;
+    background: #1c1c1f;
+    border: 1px solid #2c2c30;
+    border-radius: 14px;
+    padding: 0 44px 0 14px;
+    color: #fff;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    transition: 0.2s;
+}
+
+.input-wrapper input:hover {
+    background: #222225;
+    border-color: #3c3c42;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: #c084fc;
+    background: #222225;
+}
+
+.input-wrapper input::placeholder {
+    color: #5c5c66;
+    font-size: 14px;
+}
+
+/* Кнопка показа пароля */
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #73737d;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    transition: 0.2s;
+}
+
+.toggle-password:hover {
+    color: #c084fc;
+}
+
+/* Индикатор сложности */
+.password-strength {
+    margin-top: 8px;
+    height: 3px;
+    background: #242426;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.strength-bar {
+    height: 100%;
+    width: 0;
+    transition: 0.3s;
+    border-radius: 4px;
+}
+
+.strength-bar.weak {
+    width: 33.33%;
+    background: #ef4444;
+}
+
+.strength-bar.medium {
+    width: 66.66%;
+    background: #f59e0b;
+}
+
+.strength-bar.strong {
+    width: 100%;
+    background: #10b981;
+}
+
+.strength-text {
+    font-size: 12px;
+    color: #73737d;
+    margin-top: 4px;
+    text-align: right;
+}
+
+/* Кнопка входа */
+.button-container {
+    margin: 28px 0 16px;
+}
+
+.button-container input[type="submit"] {
+    width: 100%;
+    height: 48px;
+    background: #c084fc;
+    border: none;
+    border-radius: 14px;
+    color: #030303;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.button-container input[type="submit"]:hover:not(:disabled) {
+    background: #a855f7;
+}
+
+.button-container input[type="submit"]:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.button-container input[type="submit"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Ссылка "Забыли пароль" */
+.forgot-link {
+    display: block;
+    text-align: center;
+    color: #73737d;
+    text-decoration: none;
+    font-size: 13px;
+    transition: 0.2s;
+    padding: 8px;
+}
+
+.forgot-link:hover {
+    color: #c084fc;
+}
+
+/* Тосты */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    background: #1c1c1f;
+    border: 1px solid #2c2c30;
+    color: #fff;
+    box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.6);
+    animation: slideIn 0.2s ease;
+    cursor: pointer;
+    min-width: 260px;
+    max-width: 320px;
+}
+
+.toast.success {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.toast.error {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Автозаполнение */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #fff;
+    -webkit-box-shadow: 0 0 0px 1000px #1c1c1f inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Мобилка */
+@media (max-width: 480px) {
+    .container {
+        padding: 24px 20px;
+    }
+    
+    .title {
+        font-size: 26px;
+    }
+    
+    #toast-container {
+        left: 16px;
+        right: 16px;
+        top: 16px;
+    }
+    
+    .toast {
+        width: 100%;
+        max-width: none;
+        min-width: auto;
+    }
+}

@@ -1,533 +1,96 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoulMates — найди того самого</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-dark: #0a0a0a;
-            --bg-card: #141414;
-            --bg-header: rgba(20, 20, 20, 0.95);
-            --text-light: #ffffff;
-            --text-muted: #a3a3a3;
-            --accent: #c084fc;
-            --accent-dark: #a855f7;
-            --border-dark: #262626;
-            --radius: 16px;
-            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            --transition: all 0.2s ease;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            line-height: 1.5;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 20px;
-            width: 100%;
-        }
-
-        /* ШАПКА */
-        header {
-            background-color: var(--bg-header);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-dark);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            width: 100%;
-        }
-
-        .header-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 70px;
-        }
-
-        .logo img {
-            height: 36px;
-            width: auto;
-            display: block;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 32px;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 15px;
-            transition: var(--transition);
-        }
-
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: var(--text-light);
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .auth-buttons a {
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-weight: 500;
-            font-size: 14px;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .login-btn {
-            background: transparent;
-            border: 1px solid var(--border-dark);
-            color: var(--text-muted);
-        }
-
-        .login-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .register-btn {
-            background: var(--accent);
-            color: var(--bg-dark);
-            font-weight: 600;
-        }
-
-        .register-btn:hover {
-            background: var(--accent-dark);
-        }
-
-        /* ГЛАВНЫЙ ЭКРАН */
-        .hero-section {
-            padding: 60px 0 40px;
-            text-align: center;
-        }
-
-        .hero-title {
-            font-size: 56px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 16px;
-            background: linear-gradient(to right, #fff, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero-text {
-            font-size: 18px;
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto 32px;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 32px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 16px;
-            text-decoration: none;
-            transition: var(--transition);
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: var(--bg-dark);
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border-dark);
-            color: var(--text-light);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .btn-large {
-            padding: 14px 40px;
-            font-size: 18px;
-        }
-
-        .profiles-section {
-            padding: 40px 0;
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            color: var(--text-light);
-        }
-
-        .profiles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 24px;
-        }
-
-        .profile-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            transition: var(--transition);
-            border: 1px solid var(--border-dark);
-        }
-
-        .profile-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--accent);
-            box-shadow: var(--shadow);
-        }
-
-        .profile-card img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .profile-info {
-            padding: 16px;
-        }
-
-        .profile-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .profile-details {
-            display: flex;
-            gap: 12px;
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-dark);
-        }
-
-        .empty-state p {
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            font-size: 16px;
-        }
-
-        .promo-section {
-            padding: 60px 0 80px;
-        }
-
-        .promo-block {
-            max-width: 700px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .promo-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-
-        .promo-title {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-
-        .promo-description {
-            font-size: 18px;
-            color: var(--text-muted);
-            margin-bottom: 32px;
-            line-height: 1.6;
-        }
-
-        .promo-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin-bottom: 48px;
-        }
-
-        .features {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-
-        .feature {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-muted);
-            font-size: 15px;
-        }
-
-        .feature span:first-child {
-            font-size: 20px;
-        }
-
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 1000;
-        }
-
-        .toast {
-            background: var(--bg-card);
-            border: 1px solid var(--border-dark);
-            border-radius: 40px;
-            padding: 12px 24px;
-            color: var(--text-light);
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: var(--shadow);
-            margin-top: 8px;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 42px;
-            }
-            
-            .header-inner {
-                flex-direction: column;
-                height: auto;
-                padding: 16px 0;
-                gap: 16px;
-            }
-            
-            .nav-links {
-                gap: 24px;
-            }
-            
-            .profiles-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .promo-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn-large {
-                width: 100%;
-                max-width: 300px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-title {
-                font-size: 32px;
-            }
-            
-            .hero-text {
-                font-size: 16px;
-            }
-            
-            .nav-links {
-                gap: 16px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .auth-buttons {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .profiles-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .features {
-                flex-direction: column;
-                gap: 16px;
-                align-items: center;
-            }
-            
-            .promo-title {
-                font-size: 28px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoulMates — Найди того самого</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/index.css') }}">
 </head>
 <body>
 
-<header>
-    <div class="container">
-        <div class="header-inner">
-            <div class="logo">
-                <img src="{{ url_for('static', path='/static/logo.png') }}" alt="SoulMates">
-            </div>
-            
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="/" class="active">Главная</a></li>
-                    <li><a href="/about">О проекте</a></li>
-                    {% if user %}
-                    <li><a href="/users/{{ user }}">Мой профиль</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-            
-            <div class="auth-buttons">
-                {% if user %}
-                <a href="/logout" class="login-btn">Выйти</a>
-                {% else %}
-                <a href="/login" class="login-btn">Войти</a>
-                <a href="/register" class="register-btn">Регистрация</a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</header>
+<nav class="nav">
+  <a href="/" class="nav-logo">SoulMates</a>
+
+  <div class="nav-links">
+    <a href="/" class="active">Главная</a>
+    <a href="/about">О проекте</a>
+    {% if user %}
+    <a href="/chat">Сообщения</a>
+    <a href="/users/{{ user }}">Профиль</a>
+    {% endif %}
+  </div>
+
+  <div class="nav-auth">
+    {% if user %}
+    <a href="/logout" class="btn btn-outline btn-sm">Выйти</a>
+    {% else %}
+    <a href="/login"    class="btn btn-ghost  btn-sm">Войти</a>
+    <a href="/register" class="btn btn-primary btn-sm">Регистрация</a>
+    {% endif %}
+  </div>
+</nav>
 
 <main>
-    <div class="container">
-        {% if user %}
-        <section class="profiles-section">
-            {% if data %}
-            <h2 class="section-title">Рекомендации для вас</h2>
-            <div class="profiles-grid">
-                {% for item in data %}
-                <a href="/users/{{ item.username }}" class="profile-card">
-                    <img src="{{ url_for('static', path='/static/' + item.avatar) }}" 
-                         alt="{{ item.username }}"
-                         loading="lazy">
-                    <div class="profile-info">
-                        <div class="profile-name">{{ item.username }}</div>
-                        <div class="profile-details">
-                            <span>{{ item.age }} лет</span>
-                            <span>•</span>
-                            <span>{{ item.location }}</span>
-                        </div>
-                    </div>
-                </a>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <p>Пока нет подходящих анкет. Заполните профиль, и мы подберём пару</p>
-                <a href="/users/{{ user }}" class="btn btn-outline">Редактировать профиль</a>
-            </div>
-            {% endif %}
-        </section>
-        {% endif %}
+  <div class="container">
 
-        {% if not user %}
-        <section class="promo-section">
-            <div class="promo-block">
-                <div class="promo-icon">❤️</div>
-                <h2 class="promo-title">Добро пожаловать в SoulMates</h2>
-                <p class="promo-description">
-                    Здесь люди находят настоящие чувства и строят отношения.<br>
-                    Регистрация займёт всего минуту.
-                </p>
-
-                <div class="promo-buttons">
-                    <a href="/register" class="btn btn-primary btn-large">Начать знакомства</a>
-                    <a href="/login" class="btn btn-outline btn-large">У меня есть аккаунт</a>
-                </div>
-
-                <div class="features">
-                    <div class="feature">
-                        <span>🔒</span>
-                        <span>Приватность</span>
-                    </div>
-                    <div class="feature">
-                        <span>🧠</span>
-                        <span>Умный подбор</span>
-                    </div>
-                    <div class="feature">
-                        <span>💬</span>
-                        <span>Живое общение</span>
-                    </div>
-                </div>
+    {% if user %}
+    <section class="profiles-section">
+      {% if data %}
+      <h2 class="section-title">Рекомендации для вас</h2>
+      <div class="profiles-grid">
+        {% for item in data %}
+        <a href="/users/{{ item.username }}" class="profile-card">
+          <img src="{{ url_for('static', path=item.avatar) }}"
+               alt="{{ item.name or item.username }}"
+               loading="lazy"
+               onerror="this.src='/static/no-avatar.png'">
+          <div class="profile-card-info">
+            <div class="profile-card-name">{{ item.name or item.username }}</div>
+            <div class="profile-card-meta">
+              {% if item.age %}<span>{{ item.age }} лет</span>{% endif %}
+              {% if item.location %}<span>{{ item.location }}</span>{% endif %}
             </div>
-        </section>
-        {% endif %}
-    </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <p>Пока нет подходящих анкет.<br>Заполните профиль — и мы подберём пару.</p>
+        <a href="/users/{{ user }}" class="btn btn-primary">Заполнить профиль</a>
+      </div>
+      {% endif %}
+    </section>
+
+    {% else %}
+    <section class="hero-section">
+      <h1 class="hero-title">Найди того,<br>кто тебя поймёт</h1>
+      <p class="hero-text">
+        SoulMates — место, где люди находят настоящие чувства.<br>
+        Умный подбор, живое общение, полная приватность.
+      </p>
+      <div class="hero-buttons">
+        <a href="/register" class="btn btn-primary btn-lg">Начать знакомства</a>
+        <a href="/login"    class="btn btn-outline btn-lg">У меня есть аккаунт</a>
+      </div>
+      <div class="hero-features">
+        <div class="hero-feature"><span class="hero-feature-icon">🔒</span> Приватность</div>
+        <div class="hero-feature"><span class="hero-feature-icon">🧠</span> Умный подбор</div>
+        <div class="hero-feature"><span class="hero-feature-icon">💬</span> Живое общение</div>
+      </div>
+    </section>
+    {% endif %}
+
+  </div>
 </main>
 
-<div class="toast-container" id="toastContainer"></div>
-
-<script src="{{ url_for('static', path='./static/js/index.js') }}"></script>
-
-<!-- Игнорируем специфичные запросы Chrome DevTools -->
-<script>
-    // Этот код предотвращает лишние логи от расширений Chrome
-    if (window.performance && window.performance.getEntries) {
-        const originalFetch = window.fetch;
-        window.fetch = function() {
-            const url = arguments[0];
-            if (url && url.includes('.well-known/appspecific')) {
-                return Promise.resolve(new Response(null, {status: 404}));
-            }
-            return originalFetch.apply(this, arguments);
-        };
-    }
-</script>
-
+<div id="toast-container"></div>
+<script src="{{ url_for('static', path='js/utils.js') }}"></script>
+<script src="{{ url_for('static', path='js/index.js') }}"></script>
 </body>
 </html>

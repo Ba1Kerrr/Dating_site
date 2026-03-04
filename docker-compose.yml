@@ -32,6 +32,7 @@ services:
       - ./app:/app
     environment:
       - ENVIRONMENT=development
+      - PYTHONUNBUFFERED=1
       
   ml:
     build:

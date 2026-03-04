@@ -13,7 +13,7 @@ load_dotenv(find_dotenv("settings/.env"))
 engine = create_engine(os.environ["DATABASE_ROUTE"], echo=False)
 
 ADMIN_USERNAME = "Ba1kerr"
-ADMIN_EMAIL = "xxx@gmail.com"
+ADMIN_EMAIL = "ssfs9943@gmail.com"
 
 try:
     conn = engine.connect()
@@ -123,7 +123,7 @@ metadata.create_all(engine)
 
 def insert_db(username: str, email: str, hashed_password: str) -> None:
     conn.execute(
-        text("INSERT INTO users (username, email, password) VALUES (:u, :e, :p)"),
+        text("INSERT INTO users (username, email, password_hash) VALUES (:u, :e, :p)"),
         {"u": username, "e": email, "p": hashed_password}
     )
     conn.commit()
@@ -160,7 +160,7 @@ def check_email(email: str) -> bool:
 
 def info_user(username: str) -> dict | None:
     result = conn.execute(
-        text("SELECT username, email, password, avatar, location, gender FROM users WHERE username = :u"),
+        text("SELECT username, email, password_hash, avatar, location, gender FROM users WHERE username = :u"),
         {"u": username}
     ).fetchone()
     if result:
@@ -170,7 +170,7 @@ def info_user(username: str) -> dict | None:
 
 def info_user_email(email: str) -> dict | None:
     result = conn.execute(
-        text("SELECT username, email, password, avatar FROM users WHERE email = :e"),
+        text("SELECT username, email, password_hash, avatar FROM users WHERE email = :e"),
         {"e": email}
     ).fetchone()
     if result:
@@ -192,7 +192,7 @@ def profile(username: str) -> dict | None:
 def update_password(username: str, new_password: str) -> tuple[bool, str]:
     try:
         result = conn.execute(
-            text("UPDATE users SET password = :p WHERE username = :u"),
+            text("UPDATE users SET password_hash = :p WHERE username = :u"),
             {"p": new_password, "u": username}
         )
         if result.rowcount == 0:
@@ -207,7 +207,7 @@ def update_password(username: str, new_password: str) -> tuple[bool, str]:
 def update_password_email(email: str, new_password: str) -> tuple[bool, str]:
     try:
         result = conn.execute(
-            text("UPDATE users SET password = :p WHERE email = :e"),
+            text("UPDATE users SET password_hash = :p WHERE email = :e"),
             {"p": new_password, "e": email}
         )
         if result.rowcount == 0:
@@ -365,3 +365,44 @@ def get_user_role(username: str) -> str:
         {"u": username}
     ).fetchone()
     return result[0] if result else "user"
+
+def get_filtered_users(username: str, limit: int = 50, offset: int = 0) -> list[dict]:
+    """
+    Возвращает анкеты пользователей подходящих текущему юзеру:
+    - противоположный пол
+    - та же локация
+    - исключает самого пользователя и удалённых
+    Если локация или пол не заполнены — возвращает всех кроме себя.
+    """
+    me = conn.execute(
+        text("SELECT gender, location FROM users WHERE username = :u"),
+        {"u": username}
+    ).fetchone()
+
+    params: dict = {"u": username, "limit": limit, "offset": offset}
+    filters = ["username != :u", "is_deleted = FALSE"]
+
+    if me:
+        my_gender, my_location = me[0], me[1]
+        if my_gender:
+            opposite = "female" if my_gender.lower() == "male" else "male"
+            filters.append("gender = :gender")
+            params["gender"] = opposite
+        if my_location:
+            filters.append("location = :location")
+            params["location"] = my_location
+
+    where_clause = " AND ".join(filters)
+    rows = conn.execute(
+        text(f"""
+            SELECT username, name, age, gender, location, avatar, bio
+            FROM users
+            WHERE {where_clause}
+            ORDER BY created_at DESC
+            LIMIT :limit OFFSET :offset
+        """),
+        params
+    ).fetchall()
+
+    keys = ["username", "name", "age", "gender", "location", "avatar", "bio"]
+    return [dict(zip(keys, row)) for row in rows]
