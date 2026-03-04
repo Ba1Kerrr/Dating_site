@@ -52,20 +52,6 @@ async def chat_list(request: Request):
     })
 
 
-@router.get("/{companion}", response_class=HTMLResponse)
-async def chat_room(request: Request, companion: str):
-    username = request.session.get("user")
-    if not username:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    if not check_match_exists(username, companion):
-        raise HTTPException(status_code=403, detail="No match with this user")
-    messages = get_messages(username, companion, limit=50)
-    return templates.TemplateResponse("chat_room.html", {
-        "request": request, "user": username,
-        "companion": companion, "messages": messages,
-    })
-
-
 # ─── REST (Bearer — для API клиентов) ────────────────────────────────────────
 
 @router.get("/api/list")
@@ -86,6 +72,33 @@ async def api_chat_history(
         raise HTTPException(status_code=403, detail="No match with this user")
     messages = get_messages(username, companion, limit=limit, offset=offset)
     return {"messages": messages}
+
+
+# ─── REST (сессия — для браузера) ─────────────────────────────────────────────
+
+@router.get("", response_class=HTMLResponse)
+async def chat_list(request: Request):
+    username = request.session.get("user")
+    if not username:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    chats = get_user_chats(username)
+    return templates.TemplateResponse("chat_list.html", {
+        "request": request, "user": username, "chats": chats,
+    })
+
+
+@router.get("/{companion}", response_class=HTMLResponse)
+async def chat_room(request: Request, companion: str):
+    username = request.session.get("user")
+    if not username:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not check_match_exists(username, companion):
+        raise HTTPException(status_code=403, detail="No match with this user")
+    messages = get_messages(username, companion, limit=50)
+    return templates.TemplateResponse("chat_room.html", {
+        "request": request, "user": username,
+        "companion": companion, "messages": messages,
+    })
 
 
 # ─── WebSocket ────────────────────────────────────────────────────────────────
