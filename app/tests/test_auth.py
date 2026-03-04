@@ -93,18 +93,10 @@ class TestRegisterPost:
 # роутер принимает dict (json body), вызывает send_email(email)
 # ═══════════════════════════════════════════════════════════
 class TestSendEmail:
-    async def test_send_email_success(self, client):
-        with patch("routers.registers.send_email", return_value=123456):
-            resp = await client.post("/register/send_email",
-                                     json={"email": "test@example.com"})
+    def test_send_email_success(self, client):
+        resp = client.post("/register/send_email", json={"email": "test@example.com"})
         assert resp.status_code == 200
-        assert "key" in resp.json()
-
-    async def test_send_email_returns_key(self, client):
-        with patch("routers.registers.send_email", return_value=999999):
-            resp = await client.post("/register/send_email",
-                                     json={"email": "test@example.com"})
-        assert resp.json()["key"] == 999999
+        assert resp.json() == {"status": "sent"}
 
     async def test_send_email_stores_in_session(self, client):
         """После вызова ключ должен лежать в сессии для последующей регистрации"""
@@ -114,14 +106,8 @@ class TestSendEmail:
         assert resp.status_code == 200
 
 
-# ═══════════════════════════════════════════════════════════
-#  DOP INFO
-# session['user'] читается напрямую из request.session
-# ═══════════════════════════════════════════════════════════
 class TestDopInfo:
     async def test_dop_info_get_no_session_crashes(self, client):
-        # без сессии info_user(None) вернёт None → AttributeError на ['avatar']
-        # роутер не защищён редиректом — упадёт 500, это баг в коде
         resp = await client.get("/register/dop-info")
         assert resp.status_code in (200, 302, 303, 500)
 
@@ -131,7 +117,6 @@ class TestDopInfo:
             "email": "t@t.com", "password": "h",
             "location": "Moscow", "gender": "male",
         }):
-            # ставим сессию напрямую через логин
             with patch("routers.login.info_user", return_value={
                 "username": "testuser", "password_hash": "hashed",
                 "email": "t@t.com", "avatar": "a.jpg",
@@ -144,9 +129,6 @@ class TestDopInfo:
         assert resp.status_code in (200, 302, 303)
 
 
-# ═══════════════════════════════════════════════════════════
-#  LOGIN
-# ═══════════════════════════════════════════════════════════
 class TestLogin:
     async def test_login_page_200(self, client):
         resp = await client.get("/login")
@@ -184,9 +166,6 @@ class TestLogin:
         assert resp.status_code == 422
 
 
-# ═══════════════════════════════════════════════════════════
-#  LOGOUT
-# ═══════════════════════════════════════════════════════════
 class TestLogout:
     async def test_logout_redirects(self, client):
         resp = await client.get("/logout")
