@@ -1,0 +1,235 @@
+/* ============================================================
+   auth.css — login / register / forgot-password / dop_info
+   Зависит от base.css
+   ============================================================ */
+
+/* ── Фон страницы ───────────────────────────────────────── */
+.auth-page {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(192,132,252,.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 70%, rgba(244,114,182,.06) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+/* ── Карточка формы ─────────────────────────────────────── */
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+  animation: fadeUp .4s ease both;
+}
+
+.auth-card.wide { max-width: 500px; }
+
+/* ── Заголовок ──────────────────────────────────────────── */
+.auth-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+
+.auth-subtitle {
+  color: var(--muted);
+  font-size: .84rem;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+/* ── Step badge (dop_info) ──────────────────────────────── */
+.step-badge {
+  display: inline-block;
+  background: rgba(192,132,252,.12);
+  border: 1px solid rgba(192,132,252,.25);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: .68rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}
+
+/* ── Кнопка submit ──────────────────────────────────────── */
+.auth-submit {
+  width: 100%;
+  background: var(--grad-accent);
+  color: #0e0e12;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 13px;
+  font-family: var(--font-display);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: var(--transition);
+}
+.auth-submit:hover { opacity: .88; transform: translateY(-1px); }
+.auth-submit:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* ── Email row (register: input + кнопка) ───────────────── */
+.input-row {
+  display: flex;
+  gap: 8px;
+}
+.input-row .form-input { flex: 1; }
+
+.input-row-btn {
+  background: var(--border);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  font-size: .8rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.input-row-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Password toggle wrapper ────────────────────────────── */
+.input-pw-wrap { position: relative; }
+.input-pw-wrap .form-input { padding-right: 42px; }
+
+.pw-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: .9rem;
+  cursor: pointer;
+  padding: 4px;
+  transition: color .2s;
+  line-height: 1;
+}
+.pw-toggle:hover { color: var(--accent); }
+
+/* ── Password strength bar ──────────────────────────────── */
+.strength-bar-wrap {
+  height: 3px;
+  background: var(--border);
+  border-radius: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.strength-bar {
+  height: 100%;
+  width: 0;
+  border-radius: 4px;
+  transition: width .3s, background .3s;
+}
+.strength-bar.weak   { width: 33%; background: var(--error); }
+.strength-bar.medium { width: 66%; background: var(--warn); }
+.strength-bar.strong { width: 100%; background: var(--success); }
+
+.strength-text {
+  font-size: .72rem;
+  color: var(--muted);
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* ── Code status ────────────────────────────────────────── */
+.code-status {
+  font-size: .78rem;
+  margin-top: 5px;
+  min-height: 16px;
+  transition: color .2s;
+}
+
+/* ── Divider ────────────────────────────────────────────── */
+.auth-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* ── Footer links ───────────────────────────────────────── */
+.auth-footer {
+  text-align: center;
+  margin-top: 18px;
+  font-size: .82rem;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.auth-footer a {
+  color: var(--accent);
+  transition: opacity .2s;
+}
+.auth-footer a:hover { opacity: .75; }
+
+/* ── Avatar upload (dop_info) ───────────────────────────── */
+.avatar-upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 16px;
+  text-align: center;
+  transition: border-color .2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-upload-zone:hover { border-color: var(--accent); }
+.avatar-upload-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.avatar-preview-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 10px;
+  border: 2px solid var(--accent);
+  display: none;
+}
+.avatar-preview-img.visible { display: block; }
+
+.upload-icon { font-size: 1.8rem; margin-bottom: 8px; }
+.upload-hint { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+.upload-hint span { color: var(--accent); }
+
+/* ── Form grid (dop_info 2 col) ─────────────────────────── */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.form-grid-2 .full { grid-column: 1 / -1; }
+
+@media (max-width: 480px) {
+  .form-grid-2 { grid-template-columns: 1fr; }
+  .form-grid-2 .full { grid-column: 1; }
+  .auth-card { padding: 24px 20px; }
+}

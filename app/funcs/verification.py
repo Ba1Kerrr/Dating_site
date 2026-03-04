@@ -10,9 +10,9 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 # Константы
-brevo_api_key = os.environ['Brevo_key']
+brevo_api_key = os.environ.get('Brevo_key', '')
 brevo_server = 'https://api.brevo.com/v3/smtp/email'
-sender_email = os.environ['email']
+sender_email = os.environ.get('email', '')
 sender_name = 'SoulMates'
 subject = 'Verification'
 
@@ -20,6 +20,7 @@ def send_email(email):
     try:
         # Код для отправки письма
         text_content = key = str(random.randint(100000, 999999))
+        print(f'Ключ для {email}: {key}')
         # Создание запроса
         payload = json.dumps({
             "sender": {"name": sender_name , "email": sender_email},

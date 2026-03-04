@@ -1,4 +1,3 @@
-# routers/auth.py
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -7,6 +6,7 @@ from funcs.hash import verify_password
 from funcs.jwt_auth import (
     create_access_token, create_refresh_token, decode_token
 )
+from funcs.rate_limit import register_rate_limit, token_rate_limit
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -27,7 +27,7 @@ class TokenResponse(BaseModel):
 
 
 @router.post("/token", response_model=TokenResponse)
-async def get_token(data: TokenRequest):
+async def get_token(data: TokenRequest,_=Depends(register_rate_limit),):
     """
     Получить JWT токены по логину и паролю.
     Используется для API клиентов (мобилка, Postman и т.д.)

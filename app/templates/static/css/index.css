@@ -1,0 +1,222 @@
+/* index.css — главная страница */
+
+/* ── Nav auth кнопки ────────────────────────────────────── */
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Container ──────────────────────────────────────────── */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+}
+
+main {
+  flex: 1;
+}
+
+/* ══════════════════════════════════════════════════════════
+   HERO (гость)
+   ══════════════════════════════════════════════════════════ */
+.hero-section {
+  min-height: calc(100vh - 65px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px;
+  position: relative;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(192,132,252,.13) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(244,114,182,.07) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1.08;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #fff 30%, var(--accent) 70%, var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+}
+
+.hero-text {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 480px;
+  margin: 0 auto 36px;
+  line-height: 1.85;
+  position: relative;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.hero-features {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.hero-feature {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: .82rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
+.hero-feature-icon { font-size: 1rem; }
+
+/* ══════════════════════════════════════════════════════════
+   PROFILES (залогинен)
+   ══════════════════════════════════════════════════════════ */
+.profiles-section {
+  padding: 40px 0 60px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: .85rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+/* ── Grid ───────────────────────────────────────────────── */
+.profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+/* ── Card ───────────────────────────────────────────────── */
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  animation: fadeUp .4s ease both;
+}
+
+.profile-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(192,132,252,.4);
+  box-shadow: 0 16px 32px rgba(0,0,0,.45);
+}
+
+.profile-card img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  background: var(--border);
+}
+
+.profile-card-info {
+  padding: 12px 14px 14px;
+}
+
+.profile-card-name {
+  font-weight: 600;
+  font-size: .92rem;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-card-meta {
+  display: flex;
+  gap: 8px;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+/* ── Empty state ────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 64px 20px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-xl);
+  margin-top: 40px;
+}
+
+.empty-icon {
+  font-size: 2.6rem;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  color: var(--muted);
+  font-size: .88rem;
+  line-height: 1.7;
+  margin-bottom: 22px;
+  max-width: 340px;
+}
+
+/* ── Stagger animation ──────────────────────────────────── */
+.profile-card:nth-child(1)  { animation-delay: 0ms; }
+.profile-card:nth-child(2)  { animation-delay: 50ms; }
+.profile-card:nth-child(3)  { animation-delay: 100ms; }
+.profile-card:nth-child(4)  { animation-delay: 150ms; }
+.profile-card:nth-child(5)  { animation-delay: 200ms; }
+.profile-card:nth-child(6)  { animation-delay: 250ms; }
+.profile-card:nth-child(7)  { animation-delay: 300ms; }
+.profile-card:nth-child(8)  { animation-delay: 350ms; }
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .profiles-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .profile-card img { height: 200px; }
+  .hero-buttons { flex-direction: column; align-items: stretch; }
+  .hero-features { gap: 10px; }
+}
+
+@media (max-width: 380px) {
+  .profiles-grid { grid-template-columns: 1fr; }
+}

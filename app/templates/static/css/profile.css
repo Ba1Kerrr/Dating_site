@@ -1,0 +1,238 @@
+/* ============================================================
+   profile.css — profile.html + user.html
+   Зависит от base.css
+   ============================================================ */
+
+/* ── Hero banner ────────────────────────────────────────── */
+.profile-hero-bg {
+  height: 210px;
+  background: linear-gradient(135deg, #1a0a2e 0%, #0e0e12 55%, #1a0a1a 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 25% 50%, rgba(192,132,252,.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(244,114,182,.12) 0%, transparent 50%);
+}
+
+/* ── Контент под баннером ───────────────────────────────── */
+.profile-body {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ── Аватар + шапка ─────────────────────────────────────── */
+.profile-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 0 28px;
+  flex-wrap: wrap;
+}
+
+.profile-head-left {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.avatar-ring {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  padding: 3px;
+  background: var(--grad-accent);
+  margin-top: -54px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.avatar-ring img,
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--bg);
+  display: block;
+}
+
+.avatar-placeholder {
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.profile-name-block { padding-bottom: 4px; }
+
+.profile-display-name {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.profile-handle {
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+/* ── Stats row ──────────────────────────────────────────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.stat-cell {
+  background: var(--surface);
+  padding: 18px;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: .7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
+/* ── Profile grid (main + sidebar) ──────────────────────── */
+.profile-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 270px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .profile-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Info list (sidebar) ────────────────────────────────── */
+.info-list { display: flex; flex-direction: column; gap: 12px; }
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .85rem;
+}
+
+.info-row-icon { width: 22px; text-align: center; font-size: 1rem; flex-shrink: 0; }
+.info-row-label { color: var(--muted); min-width: 64px; font-size: .8rem; flex-shrink: 0; }
+.info-row-value { color: var(--text); }
+
+/* ── Bio ────────────────────────────────────────────────── */
+.bio-text { font-size: .9rem; line-height: 1.75; color: var(--text); }
+.bio-empty { color: var(--muted); font-style: italic; font-size: .88rem; }
+
+/* ── Badges ─────────────────────────────────────────────── */
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ── Music card ─────────────────────────────────────────── */
+.music-card {
+  background: linear-gradient(135deg, rgba(192,132,252,.07), rgba(244,114,182,.04));
+  border-color: rgba(192,132,252,.2);
+}
+
+.now-playing { display: flex; align-items: center; gap: 12px; }
+
+.music-cover {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  background: var(--grad-accent);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+.music-cover.spinning { animation: spin 8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.music-info { flex: 1; min-width: 0; }
+.music-title { font-size: .87rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.music-artist { font-size: .74rem; color: var(--muted); margin-top: 2px; }
+
+.music-ctrl {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px;
+  transition: color .2s;
+}
+.music-ctrl:hover { color: var(--accent); }
+
+/* ── Edit modal ─────────────────────────────────────────── */
+.edit-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.edit-overlay.open { display: flex; }
+
+.edit-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  width: 90%;
+  max-width: 460px;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: fadeUp .2s ease both;
+}
+
+.edit-modal-title {
+  font-family: var(--font-display);
+  font-size: .95rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.edit-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .profile-head { flex-direction: column; align-items: flex-start; }
+  .profile-display-name { font-size: 1.3rem; }
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+}
