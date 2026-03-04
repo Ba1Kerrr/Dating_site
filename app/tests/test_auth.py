@@ -168,7 +168,7 @@ class TestLogin:
             "username": "testuser", "password_hash": "hashed",
         }), patch("routers.login.verify_password", return_value=False):
             resp = await client.post("/login", data={
-                "username": "testuser", "password_hash": "wrong",
+                "username": "testuser", "password": "wrong",
             })
         assert resp.status_code == 400
 

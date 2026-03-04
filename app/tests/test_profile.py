@@ -99,18 +99,26 @@ class TestChatList:
         assert resp.status_code == 200
 
     async def test_chat_history_no_match_403(self, client):
-        await _login(client)
+        from funcs.jwt_auth import create_access_token
+        token = create_access_token("testuser")
         with patch("routers.chat.check_match_exists", return_value=False):
-            resp = await client.get("/chat/anna/history")
+            resp = await client.get(
+                "/chat/api/anna/history",
+                headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 403
 
     async def test_chat_history_with_match_200(self, client):
-        await _login(client)
+        from funcs.jwt_auth import create_access_token
+        token = create_access_token("testuser")
         with patch("routers.chat.check_match_exists", return_value=True), \
              patch("routers.chat.get_messages", return_value=[
                  {"id": 1, "sender": "testuser", "receiver": "anna",
                   "text": "hi", "created_at": None, "is_read": True}
              ]):
-            resp = await client.get("/chat/anna/history")
+            resp = await client.get(
+                "/chat/api/anna/history",
+                headers={"Authorization": f"Bearer {token}"}
+            )
         assert resp.status_code == 200
         assert "messages" in resp.json()
