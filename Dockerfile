@@ -3,6 +3,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 COPY app/settings/requirements.base.txt .
+COPY app/settings/requirements.dev.txt .
 COPY app/settings/requirements.prod.txt .
 
 RUN apt-get update && apt-get install -y \
@@ -12,7 +13,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 ARG ENVIRONMENT=development
-RUN if [ "$ENVIRONMENT" = "development" ]; then \
+RUN if [ "$ENVIRONMENT" = "production" ]; then \
+      pip install --no-cache-dir -r requirements.prod.txt; \
+    else \
       pip install --no-cache-dir -r requirements.dev.txt; \
     fi
 
