@@ -1,5 +1,5 @@
 # funcs/jwt_auth.py
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi import Depends, HTTPException, WebSocket
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -15,7 +15,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def create_access_token(username: str) -> str:
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     return jwt.encode(
         {"sub": username, "exp": expire, "type": "access"},
         SECRET_KEY, algorithm=ALGORITHM
@@ -23,7 +23,7 @@ def create_access_token(username: str) -> str:
 
 
 def create_refresh_token(username: str) -> str:
-    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    expire = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     return jwt.encode(
         {"sub": username, "exp": expire, "type": "refresh"},
         SECRET_KEY, algorithm=ALGORITHM

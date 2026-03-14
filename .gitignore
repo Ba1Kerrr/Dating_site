@@ -6,3 +6,4 @@ __pycache__
 local
 personal_info/*
 !personal_info/.gitkeep
+tests/.pytest_cache

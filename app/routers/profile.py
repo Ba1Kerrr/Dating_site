@@ -1,15 +1,23 @@
-# routers/profile.py
+import os
+import uuid
+
 from fastapi import APIRouter, Request, HTTPException, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from database.database import profile as get_profile, insert_values_dopinfo
-import os
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 templates = Jinja2Templates(directory="templates")
 
-static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates", "static")
+static_dir = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates", "static", "personal_info"
+)
+os.makedirs(static_dir, exist_ok=True)
 
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+
+
+# ─── GET /profile/{username} ──────────────────────────────────────────────────
 
 @router.get("/{username}", response_class=HTMLResponse)
 async def view_profile(request: Request, username: str):
@@ -22,47 +30,56 @@ async def view_profile(request: Request, username: str):
         raise HTTPException(status_code=404, detail="User not found")
 
     return templates.TemplateResponse("profile.html", {
-        "request":  request,
-        "profile":  user_profile,
-        "is_own":   current_user == username,
+        "request": request,
+        "profile": user_profile,
+        "is_own":  current_user == username,
     })
 
 
+# ─── POST /profile/{username}/edit ────────────────────────────────────────────
+
 @router.post("/{username}/edit")
 async def edit_profile(
-    request: Request,
+    request:  Request,
     username: str,
-    name:     str = Form(default=""),
-    bio:      str = Form(default=""),
-    location: str = Form(default=""),
-    age:      int = Form(default=0),
-    file: UploadFile = File(default=None),
+    name:     str        = Form(default=""),
+    bio:      str        = Form(default=""),
+    location: str        = Form(default=""),
+    age:      int        = Form(default=0),
+    file: UploadFile     = File(default=None),
 ):
     current_user = request.session.get("user")
-    if not current_user or current_user != username:
+    if not current_user:
+        return RedirectResponse(url="/login", status_code=303)
+    if current_user != username:
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    # Текущий профиль чтобы не затереть аватар если не загрузили новый
-    current = get_profile(username)
-    avatar = current.get("avatar") if current else None
+    current = get_profile(username) or {}
+    avatar  = current.get("avatar", "")
 
+    # Загрузка нового аватара если передан
     if file and file.filename:
-        import uuid
         ext = os.path.splitext(file.filename)[1].lower()
-        if ext not in (".jpg", ".jpeg", ".png", ".webp", ".gif"):
+        if ext not in ALLOWED_EXTENSIONS:
             raise HTTPException(status_code=400, detail="Invalid file type")
-        avatar = f"{username}-{uuid.uuid4().hex}{ext}"
-        with open(os.path.join(static_dir, avatar), "wb") as f:
-            f.write(await file.read())
+
+        contents = await file.read()
+        if len(contents) > 5 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="File too large (max 5 MB)")
+
+        filename = f"{username}-{uuid.uuid4().hex}{ext}"
+        with open(os.path.join(static_dir, filename), "wb") as f:
+            f.write(contents)
+        avatar = f"personal_info/{filename}"
 
     insert_values_dopinfo(
-        username=username,
-        age=age or (current.get("age") if current else 0),
-        gender=current.get("gender", "") if current else "",
-        name=name or (current.get("name", "") if current else ""),
-        location=location or (current.get("location", "") if current else ""),
-        avatar=avatar or "",
-        bio=bio or (current.get("bio", "") if current else ""),
+        username = username,
+        age      = age      or current.get("age", 0),
+        gender   = current.get("gender", ""),
+        name     = name     or current.get("name", ""),
+        location = location or current.get("location", ""),
+        avatar   = avatar,
+        bio      = bio      or current.get("bio", ""),
     )
 
     return RedirectResponse(url=f"/profile/{username}", status_code=303)

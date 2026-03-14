@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+
 
 class UserSchemas(BaseModel):
     username: str
@@ -9,9 +10,14 @@ class UserSchemas(BaseModel):
     avatar: str = None
     bio: str = None
 
+
 class UserAddSchemas(UserSchemas):
     username: str
     email: str
     password: str
     confirm_password: str
     input_key: int
+
+
+class EmailSchema(BaseModel):
+    email: EmailStr

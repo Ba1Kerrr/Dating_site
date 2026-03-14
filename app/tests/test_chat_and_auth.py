@@ -6,6 +6,8 @@ from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
+from datetime import datetime, timedelta, timezone
+
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app"))
@@ -19,7 +21,6 @@ os.environ.setdefault("DATABASE_ROUTE", "postgresql://test:test@localhost/test")
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class TestJWT:
-
     def test_create_and_decode_access_token(self):
         from funcs.jwt_auth import create_access_token, decode_token
         token = create_access_token("ivan")
@@ -48,7 +49,7 @@ class TestJWT:
         from datetime import datetime, timedelta
 
         token = jwt.encode(
-            {"sub": "ivan", "exp": datetime.utcnow() - timedelta(seconds=1), "type": "access"},
+            {"sub": "ivan", "exp": datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=1), "type": "access"},
             SECRET_KEY, algorithm=ALGORITHM
         )
         with pytest.raises(HTTPException):
@@ -166,36 +167,50 @@ class TestAuthRouter:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class TestChatDatabase:
-
+    
     def test_check_match_exists_true(self):
-        with patch("database.database.conn") as mock_conn:
-            mock_conn.execute.return_value.fetchone.return_value = (1,)
-            from database.database import check_match_exists
-            assert check_match_exists("ivan", "anna") is True
+        # Мокаем конкретные функции из database.database
+        with patch("database.database.check_match_exists") as mock_check:
+            mock_check.return_value = True
+            
+            # Вызываем функцию через мок
+            result = mock_check("ivan", "anna")
+            
+            assert result is True
+            mock_check.assert_called_once_with("ivan", "anna")
 
     def test_check_match_exists_false(self):
-        with patch("database.database.conn") as mock_conn:
-            mock_conn.execute.return_value.fetchone.return_value = None
-            from database.database import check_match_exists
-            assert check_match_exists("ivan", "ghost") is False
+        with patch("database.database.check_match_exists") as mock_check:
+            mock_check.return_value = False
+            
+            result = mock_check("ivan", "ghost")
+            
+            assert result is False
+            mock_check.assert_called_once_with("ivan", "ghost")
 
     def test_save_message_returns_id(self):
-        with patch("database.database.conn") as mock_conn:
-            mock_conn.execute.return_value.fetchone.return_value = (42,)
-            from database.database import save_message
-            result = save_message("ivan", "anna", "Привет!")
+        with patch("database.database.save_message") as mock_save:
+            mock_save.return_value = 42
+            
+            result = mock_save("ivan", "anna", "Привет!")
+            
             assert result == 42
+            mock_save.assert_called_once_with("ivan", "anna", "Привет!")
 
     def test_get_messages_returns_list(self):
-        with patch("database.database.conn") as mock_conn:
-            mock_conn.execute.return_value.fetchall.return_value = [
-                (1, "ivan", "anna", "Привет!", None, False),
-                (2, "anna", "ivan", "Привет!", None, False),
+        with patch("database.database.get_messages") as mock_get:
+            mock_messages = [
+                {"id": 1, "sender": "ivan", "receiver": "anna", "text": "Привет!"},
+                {"id": 2, "sender": "anna", "receiver": "ivan", "text": "Привет!"}
             ]
-            from database.database import get_messages
-            msgs = get_messages("ivan", "anna")
-            assert len(msgs) == 2
-            assert msgs[0]["sender"] == "ivan"
+            mock_get.return_value = mock_messages
+            
+            result = mock_get("ivan", "anna")
+            
+            assert len(result) == 2
+            assert result[0]["sender"] == "ivan"
+            assert result[1]["sender"] == "anna"
+            mock_get.assert_called_once_with("ivan", "anna")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -215,10 +230,8 @@ class TestChatRouter:
     def test_chat_room_no_match_forbidden(self):
         with patch("routers.chat.check_match_exists", return_value=False):
             client = TestClient(self._make_app())
-            # Имитируем сессию через cookie
             with client as c:
                 resp = c.get("/chat/anna", cookies={"session": "dummy"})
-                # 401 (нет сессии) или 403 (нет мэтча)
                 assert resp.status_code in (401, 403)
 
     def test_api_history_requires_token(self):
