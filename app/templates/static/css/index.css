@@ -1,14 +1,5 @@
-/* index.css — главная страница */
+/* index.css — главная страница, полная адаптация */
 
-/* ── Nav auth кнопки ────────────────────────────────────── */
-.nav-auth {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-/* ── Container ──────────────────────────────────────────── */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -16,15 +7,13 @@
   width: 100%;
 }
 
-main {
-  flex: 1;
-}
+main { flex: 1; }
 
 /* ══════════════════════════════════════════════════════════
    HERO (гость)
    ══════════════════════════════════════════════════════════ */
 .hero-section {
-  min-height: calc(100vh - 65px);
+  min-height: calc(100vh - var(--nav-h));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,7 +35,7 @@ main {
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-size: clamp(1.9rem, 6vw, 4rem);
   font-weight: 800;
   letter-spacing: -.04em;
   line-height: 1.08;
@@ -58,7 +47,7 @@ main {
 }
 
 .hero-text {
-  font-size: 1rem;
+  font-size: clamp(.88rem, 2.5vw, 1rem);
   color: var(--muted);
   max-width: 480px;
   margin: 0 auto 36px;
@@ -78,7 +67,7 @@ main {
 .hero-features {
   display: flex;
   justify-content: center;
-  gap: 28px;
+  gap: 12px;
   flex-wrap: wrap;
   position: relative;
 }
@@ -100,9 +89,7 @@ main {
 /* ══════════════════════════════════════════════════════════
    PROFILES (залогинен)
    ══════════════════════════════════════════════════════════ */
-.profiles-section {
-  padding: 40px 0 60px;
-}
+.profiles-section { padding: 40px 0 60px; }
 
 .section-title {
   font-family: var(--font-display);
@@ -114,14 +101,12 @@ main {
   margin-bottom: 20px;
 }
 
-/* ── Grid ───────────────────────────────────────────────── */
 .profiles-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 18px;
 }
 
-/* ── Card ───────────────────────────────────────────────── */
 .profile-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -133,6 +118,7 @@ main {
   flex-direction: column;
   transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
   animation: fadeUp .4s ease both;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .profile-card:hover {
@@ -150,9 +136,7 @@ main {
   background: var(--border);
 }
 
-.profile-card-info {
-  padding: 12px 14px 14px;
-}
+.profile-card-info { padding: 12px 14px 14px; }
 
 .profile-card-name {
   font-weight: 600;
@@ -168,6 +152,7 @@ main {
   gap: 8px;
   color: var(--muted);
   font-size: .78rem;
+  flex-wrap: wrap;
 }
 
 /* ── Empty state ────────────────────────────────────────── */
@@ -183,10 +168,7 @@ main {
   margin-top: 40px;
 }
 
-.empty-icon {
-  font-size: 2.6rem;
-  margin-bottom: 16px;
-}
+.empty-icon { font-size: 2.6rem; margin-bottom: 16px; }
 
 .empty-state p {
   color: var(--muted);
@@ -196,7 +178,7 @@ main {
   max-width: 340px;
 }
 
-/* ── Stagger animation ──────────────────────────────────── */
+/* Stagger */
 .profile-card:nth-child(1)  { animation-delay: 0ms; }
 .profile-card:nth-child(2)  { animation-delay: 50ms; }
 .profile-card:nth-child(3)  { animation-delay: 100ms; }
@@ -207,16 +189,34 @@ main {
 .profile-card:nth-child(8)  { animation-delay: 350ms; }
 
 /* ── Responsive ─────────────────────────────────────────── */
-@media (max-width: 640px) {
-  .profiles-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  .profile-card img { height: 200px; }
-  .hero-buttons { flex-direction: column; align-items: stretch; }
-  .hero-features { gap: 10px; }
+@media (max-width: 1024px) {
+  .profiles-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+  .profiles-section { padding: 28px 0 48px; }
+  .profiles-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .profile-card img { height: 200px; }
+  .hero-section { padding: 48px 16px; }
+  .hero-buttons { gap: 10px; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 12px; }
+  .profiles-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .profile-card img { height: 170px; }
+  .profile-card-info { padding: 10px 12px 12px; }
+  .profile-card-name { font-size: .84rem; }
+  .hero-section { min-height: calc(100svh - var(--nav-h)); padding: 40px 12px; }
+  .hero-buttons { flex-direction: column; align-items: stretch; }
+  .hero-buttons .btn { width: 100%; justify-content: center; }
+  .hero-features { gap: 8px; }
+  .hero-feature { font-size: .76rem; padding: 6px 12px; }
+  .empty-state { padding: 40px 16px; }
+}
+
+@media (max-width: 360px) {
   .profiles-grid { grid-template-columns: 1fr; }
+  .profile-card img { height: 220px; }
 }

@@ -1,6 +1,5 @@
 /* ============================================================
    base.css — единый дизайн-токен для всего SoulMates
-   Подключается первым на каждой странице
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Onest:wght@300;400;500&display=swap');
@@ -30,12 +29,14 @@
 
   --transition: all .2s ease;
   --shadow: 0 20px 40px rgba(0,0,0,.5);
+
+  --nav-h: 60px;
 }
 
 /* ── Reset ──────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
   background: var(--bg);
@@ -47,6 +48,7 @@ body {
   display: flex;
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 img { display: block; max-width: 100%; }
@@ -59,7 +61,8 @@ input, textarea, select { font-family: inherit; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 28px;
+  padding: 0 28px;
+  height: var(--nav-h);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -81,16 +84,22 @@ input, textarea, select { font-family: inherit; }
 
 .nav-links {
   display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
+  gap: 2px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.nav-links::-webkit-scrollbar { display: none; }
 
 .nav-links a {
   color: var(--muted);
-  font-size: .82rem;
-  padding: 6px 14px;
+  font-size: .8rem;
+  padding: 6px 12px;
   border-radius: 20px;
   transition: var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-links a:hover,
@@ -99,10 +108,18 @@ input, textarea, select { font-family: inherit; }
   background: var(--border);
 }
 
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 /* ── Buttons ────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 10px 22px;
   border-radius: 30px;
@@ -114,6 +131,7 @@ input, textarea, select { font-family: inherit; }
   transition: var(--transition);
   text-decoration: none;
   white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn-primary {
@@ -121,6 +139,7 @@ input, textarea, select { font-family: inherit; }
   color: #0e0e12;
 }
 .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+.btn-primary:active { transform: scale(.97); }
 
 .btn-outline {
   background: transparent;
@@ -136,7 +155,7 @@ input, textarea, select { font-family: inherit; }
 .btn-ghost:hover { color: var(--text); }
 
 .btn-sm { padding: 7px 16px; font-size: .72rem; }
-.btn-lg { padding: 13px 32px; font-size: .88rem; }
+.btn-lg { padding: 14px 34px; font-size: .88rem; }
 
 /* ── Form элементы ──────────────────────────────────────── */
 .form-group { margin-bottom: 16px; }
@@ -157,12 +176,13 @@ input, textarea, select { font-family: inherit; }
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 11px 14px;
+  padding: 12px 14px;
   color: var(--text);
   font-size: .9rem;
   outline: none;
   transition: border-color .2s;
   appearance: none;
+  -webkit-appearance: none;
 }
 
 .form-input:focus,
@@ -176,7 +196,6 @@ input, textarea, select { font-family: inherit; }
 
 .form-select option { background: var(--surface); color: var(--text); }
 
-/* Автофилл Chrome */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
@@ -203,7 +222,7 @@ input:-webkit-autofill:focus {
   margin-bottom: 14px;
 }
 
-/* ── Badge / Tag ────────────────────────────────────────── */
+/* ── Badge ──────────────────────────────────────────────── */
 .badge {
   display: inline-block;
   background: rgba(192,132,252,.1);
@@ -224,6 +243,7 @@ input:-webkit-autofill:focus {
   flex-direction: column;
   gap: 8px;
   pointer-events: none;
+  max-width: calc(100vw - 32px);
 }
 
 .toast {
@@ -239,6 +259,7 @@ input:-webkit-autofill:focus {
   cursor: pointer;
   min-width: 220px;
   max-width: 320px;
+  word-break: break-word;
 }
 
 .toast.success { border-color: var(--success); color: var(--success); }
@@ -249,7 +270,6 @@ input:-webkit-autofill:focus {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes toastOut {
   from { opacity: 1; transform: translateY(0); }
   to   { opacity: 0; transform: translateY(10px); }
@@ -260,14 +280,13 @@ input:-webkit-autofill:focus {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-.anim-fade-up  { animation: fadeUp .4s ease both; }
-.anim-fade-in  { animation: fadeIn .3s ease both; }
+.anim-fade-up { animation: fadeUp .4s ease both; }
+.anim-fade-in { animation: fadeIn .3s ease both; }
 
 /* ── Helpers ────────────────────────────────────────────── */
 .muted { color: var(--muted); }
@@ -278,8 +297,19 @@ input:-webkit-autofill:focus {
 .mt-24 { margin-top: 24px; }
 
 /* ── Responsive ─────────────────────────────────────────── */
-@media (max-width: 600px) {
-  .nav { padding: 12px 16px; }
-  .nav-links { gap: 2px; }
-  .nav-links a { padding: 5px 10px; font-size: .78rem; }
+@media (max-width: 768px) {
+  .nav { padding: 0 16px; }
+  .nav-links a { padding: 5px 10px; font-size: .76rem; }
+  .btn-lg { padding: 12px 24px; font-size: .82rem; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 14px; }
+  .nav { padding: 0 12px; gap: 8px; }
+  .nav-logo { font-size: .85rem; }
+  .nav-links a { padding: 4px 8px; font-size: .72rem; }
+  .card { padding: 16px; }
+
+  #toast-container { bottom: 16px; right: 16px; left: 16px; }
+  .toast { min-width: unset; max-width: 100%; width: 100%; }
 }

@@ -50,7 +50,6 @@ services:
     volumes:
       - ./app/ml/models:/app/ml/models
       - ./app/ml:/app/ml
-      - ./app/ml_service.py:/app/ml_service.py
     environment:
       - ENVIRONMENT=development
 

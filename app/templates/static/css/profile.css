@@ -1,18 +1,17 @@
 /* ============================================================
    profile.css — profile.html + user.html
-   Зависит от base.css
    ============================================================ */
 
 /* ── Hero banner ────────────────────────────────────────── */
-.profile-hero-bg {
-  height: 210px;
+.hero {
+  height: 200px;
   background: linear-gradient(135deg, #1a0a2e 0%, #0e0e12 55%, #1a0a1a 100%);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
-.profile-hero-bg::after {
-  content: '';
+.hero-bg {
   position: absolute;
   inset: 0;
   background:
@@ -20,15 +19,15 @@
     radial-gradient(ellipse at 80% 20%, rgba(244,114,182,.12) 0%, transparent 50%);
 }
 
-/* ── Контент под баннером ───────────────────────────────── */
-.profile-body {
+/* ── Body ───────────────────────────────────────────────── */
+.body {
   max-width: 780px;
   margin: 0 auto;
   padding: 0 24px 80px;
 }
 
-/* ── Аватар + шапка ─────────────────────────────────────── */
-.profile-head {
+/* ── Profile header ─────────────────────────────────────── */
+.profile-header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -79,7 +78,7 @@
 
 .profile-name-block { padding-bottom: 4px; }
 
-.profile-display-name {
+.profile-name {
   font-family: var(--font-display);
   font-size: 1.55rem;
   font-weight: 800;
@@ -88,12 +87,14 @@
   margin-bottom: 4px;
 }
 
-.profile-handle {
+.profile-username {
   color: var(--muted);
   font-size: .82rem;
 }
 
-/* ── Stats row ──────────────────────────────────────────── */
+.profile-actions { flex-shrink: 0; }
+
+/* ── Stats ──────────────────────────────────────────────── */
 .stats-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -104,7 +105,7 @@
   margin-bottom: 20px;
 }
 
-.stat-cell {
+.stat {
   background: var(--surface);
   padding: 18px;
   text-align: center;
@@ -126,19 +127,15 @@
   letter-spacing: .07em;
 }
 
-/* ── Profile grid (main + sidebar) ──────────────────────── */
-.profile-grid-2 {
+/* ── Profile grid ───────────────────────────────────────── */
+.profile-grid {
   display: grid;
-  grid-template-columns: 1fr 270px;
+  grid-template-columns: 1fr 260px;
   gap: 20px;
   align-items: start;
 }
 
-@media (max-width: 640px) {
-  .profile-grid-2 { grid-template-columns: 1fr; }
-}
-
-/* ── Info list (sidebar) ────────────────────────────────── */
+/* ── Info list ──────────────────────────────────────────── */
 .info-list { display: flex; flex-direction: column; gap: 12px; }
 
 .info-row {
@@ -148,9 +145,9 @@
   font-size: .85rem;
 }
 
-.info-row-icon { width: 22px; text-align: center; font-size: 1rem; flex-shrink: 0; }
-.info-row-label { color: var(--muted); min-width: 64px; font-size: .8rem; flex-shrink: 0; }
-.info-row-value { color: var(--text); }
+.info-icon { width: 22px; text-align: center; font-size: 1rem; flex-shrink: 0; }
+.info-label { color: var(--muted); min-width: 60px; font-size: .8rem; flex-shrink: 0; }
+.info-value { color: var(--text); word-break: break-all; }
 
 /* ── Bio ────────────────────────────────────────────────── */
 .bio-text { font-size: .9rem; line-height: 1.75; color: var(--text); }
@@ -178,14 +175,15 @@
   justify-content: center;
   font-size: 1.2rem;
 }
-.music-cover.spinning { animation: spin 8s linear infinite; }
+.music-cover.playing { animation: spin 8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .music-info { flex: 1; min-width: 0; }
 .music-title { font-size: .87rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .music-artist { font-size: .74rem; color: var(--muted); margin-top: 2px; }
 
-.music-ctrl {
+.music-controls { flex-shrink: 0; }
+.ctrl-btn {
   background: none;
   border: none;
   color: var(--muted);
@@ -194,18 +192,20 @@
   padding: 4px;
   transition: color .2s;
 }
-.music-ctrl:hover { color: var(--accent); }
+.ctrl-btn:hover { color: var(--accent); }
 
 /* ── Edit modal ─────────────────────────────────────────── */
 .edit-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.7);
+  background: rgba(0,0,0,.75);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 200;
   align-items: center;
   justify-content: center;
+  padding: 16px;
 }
 .edit-overlay.open { display: flex; }
 
@@ -214,25 +214,44 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 28px;
-  width: 90%;
+  width: 100%;
   max-width: 460px;
-  max-height: 85vh;
+  max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
   animation: fadeUp .2s ease both;
 }
 
-.edit-modal-title {
+.edit-title {
   font-family: var(--font-display);
   font-size: .95rem;
   font-weight: 600;
   margin-bottom: 20px;
 }
 
-.edit-actions { display: flex; gap: 10px; margin-top: 20px; }
+.form-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 
 /* ── Responsive ─────────────────────────────────────────── */
-@media (max-width: 600px) {
-  .profile-head { flex-direction: column; align-items: flex-start; }
-  .profile-display-name { font-size: 1.3rem; }
-  .stats-row { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 768px) {
+  .body { padding: 0 16px 60px; }
+  .profile-grid { grid-template-columns: 1fr; }
+  .hero { height: 160px; }
+  .avatar-ring { width: 90px; height: 90px; margin-top: -45px; }
+  .profile-name { font-size: 1.3rem; }
+}
+
+@media (max-width: 480px) {
+  .body { padding: 0 12px 48px; }
+  .hero { height: 130px; }
+  .avatar-ring { width: 80px; height: 80px; margin-top: -40px; }
+  .avatar-placeholder { font-size: 1.6rem; }
+  .profile-name { font-size: 1.15rem; }
+  .profile-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .profile-header .profile-actions { width: 100%; }
+  .profile-header .profile-actions .btn { width: 100%; justify-content: center; }
+  .stat { padding: 14px 8px; }
+  .stat-value { font-size: 1.1rem; }
+  .edit-modal { padding: 20px 16px; }
+  .form-actions { flex-direction: column; }
+  .form-actions .btn { width: 100%; justify-content: center; }
 }

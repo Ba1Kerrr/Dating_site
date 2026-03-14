@@ -93,8 +93,8 @@ class TestRegisterPost:
 # роутер принимает dict (json body), вызывает send_email(email)
 # ═══════════════════════════════════════════════════════════
 class TestSendEmail:
-    def test_send_email_success(self, client):
-        resp = client.post("/register/send_email", json={"email": "test@example.com"})
+    async def test_send_email_success(self, client):
+        resp = await client.post("/register/send_email", json={"email": "test@example.com"}) 
         assert resp.status_code == 200
         assert resp.json() == {"status": "sent"}
 

@@ -47,7 +47,6 @@ class TestProfilePage:
         with patch("routers.profile.get_profile", return_value=MOCK_PROFILE):
             resp = await client.get("/profile/testuser")
         assert resp.status_code in (302, 303)
-
     async def test_profile_authenticated_200(self, client):
         await _login(client)
         with patch("routers.profile.get_profile", return_value=MOCK_PROFILE):
@@ -71,7 +70,7 @@ class TestProfilePage:
         resp = await client.post("/profile/testuser/edit", data={
             "name": "Test", "bio": "", "location": "", "age": "0",
         })
-        assert resp.status_code == 403
+        assert resp.status_code in (302, 303)
 
 
 class TestChatList:

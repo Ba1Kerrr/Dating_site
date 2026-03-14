@@ -6,6 +6,8 @@ from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
+from datetime import datetime, timedelta, timezone
+
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app"))
@@ -47,7 +49,7 @@ class TestJWT:
         from datetime import datetime, timedelta
 
         token = jwt.encode(
-            {"sub": "ivan", "exp": datetime.utcnow() - timedelta(seconds=1), "type": "access"},
+            {"sub": "ivan", "exp": datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=1), "type": "access"},
             SECRET_KEY, algorithm=ALGORITHM
         )
         with pytest.raises(HTTPException):
