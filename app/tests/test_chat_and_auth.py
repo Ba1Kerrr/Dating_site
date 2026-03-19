@@ -1,4 +1,3 @@
-# tests/test_chat_and_auth.py
 import pytest
 import sys
 import os

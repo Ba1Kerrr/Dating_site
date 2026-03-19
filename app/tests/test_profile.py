@@ -1,7 +1,3 @@
-"""tests/test_profile.py — Profile & Chat list
-profile.py читает current_user из request.session.get("user")
-chat.py тоже читает из session
-"""
 import pytest
 from unittest.mock import patch
 

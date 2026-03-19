@@ -328,6 +328,11 @@ def is_admin(username: str) -> bool:
 
 def ensure_admin_exists() -> None:
     try:
+        admin_password = os.environ.get("admin_password", "")
+        if not admin_password:
+            print("WARNING: admin_password not set in .env — skipping admin creation")
+            return
+
         with engine.connect() as conn:
             result = conn.execute(
                 text("SELECT username FROM users WHERE username = :u OR email = :e"),
@@ -335,15 +340,27 @@ def ensure_admin_exists() -> None:
             ).fetchone()
 
         if not result:
-            print(f"Admin user {ADMIN_USERNAME} not found in database!")
-            print(f"User with email {ADMIN_EMAIL} should be the admin")
+            with engine.begin() as conn:
+                conn.execute(
+                    text("""
+                        INSERT INTO users (username, email, password_hash, group_name, status, is_verified)
+                        VALUES (:u, :e, :p, 'admin', 'active', TRUE)
+                    """),
+                    {"u": ADMIN_USERNAME, "e": ADMIN_EMAIL, "p": hash_password(admin_password)}
+                )
+            print(f"Admin user {ADMIN_USERNAME} created")
         else:
             with engine.begin() as conn:
                 conn.execute(
-                    text("UPDATE users SET group_name = 'admin' WHERE username = :u"),
-                    {"u": result[0]}
+                    text("""
+                        UPDATE users
+                        SET group_name = 'admin', status = 'active', is_verified = TRUE,
+                            password_hash = :p
+                        WHERE username = :u
+                    """),
+                    {"u": result[0], "p": hash_password(admin_password)}
                 )
-            print(f"Admin user {result[0]} verified")
+            print(f"Admin user {result[0]} verified and password synced")
     except Exception as e:
         print(f"ensure_admin_exists error: {e}")
 

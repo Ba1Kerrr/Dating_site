@@ -25,7 +25,17 @@ class TokenResponse(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
 
-
+@router.get("/session")
+async def get_session_user(request: Request):
+    """Получить юзера из сессии (для фронта на React)"""
+    username = request.session.get("user")
+    if not username:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    user = info_user(username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {k: v for k, v in user.items() if k not in ("password", "password_hash")}
+    
 @router.post("/token", response_model=TokenResponse)
 async def get_token(data: TokenRequest,_=Depends(register_rate_limit),):
     """

@@ -1,9 +1,32 @@
-myenv
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
 .env
-venv
-__pycache__
-.vscode
-local
-personal_info/*
-!personal_info/.gitkeep
-tests/.pytest_cache
+*.egg-info/
+dist/
+.venv/
+venv/
+
+# FastAPI / uploads
+app/static/personal_info/
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests
+.pytest_cache/
+htmlcov/
+.coverage

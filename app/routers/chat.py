@@ -1,12 +1,8 @@
-# routers/chat.py
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Request, Depends
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from database.database import get_messages, save_message, check_match_exists, get_user_chats
 from funcs.jwt_auth import get_current_user, get_user_from_websocket
 
-router = APIRouter(prefix="/chat", tags=["chat"])
-templates = Jinja2Templates(directory="templates")
+router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 
 class ConnectionManager:
@@ -39,78 +35,25 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-# ─── REST (сессия — для браузера) ─────────────────────────────────────────────
-
-@router.get("", response_class=HTMLResponse)
-async def chat_list(request: Request):
-    username = request.session.get("user")
-    if not username:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    chats = get_user_chats(username)
-    return templates.TemplateResponse("chat_list.html", {
-        "request": request, "user": username, "chats": chats,
-    })
-
-
-# ─── REST (Bearer — для API клиентов) ────────────────────────────────────────
-
-@router.get("/api/list")
-async def api_chat_list(username: str = Depends(get_current_user)):
-    """Список чатов через Bearer токен"""
+@router.get("/list")
+async def chat_list(username: str = Depends(get_current_user)):
     return {"chats": get_user_chats(username)}
 
 
-@router.get("/api/{companion}/history")
-async def api_chat_history(
+@router.get("/{companion}/history")
+async def chat_history(
     companion: str,
     limit: int = 50,
     offset: int = 0,
     username: str = Depends(get_current_user),
 ):
-    """История сообщений через Bearer токен"""
     if not check_match_exists(username, companion):
         raise HTTPException(status_code=403, detail="No match with this user")
-    messages = get_messages(username, companion, limit=limit, offset=offset)
-    return {"messages": messages}
+    return {"messages": get_messages(username, companion, limit=limit, offset=offset)}
 
-
-# ─── REST (сессия — для браузера) ─────────────────────────────────────────────
-
-@router.get("", response_class=HTMLResponse)
-async def chat_list(request: Request):
-    username = request.session.get("user")
-    if not username:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    chats = get_user_chats(username)
-    return templates.TemplateResponse("chat_list.html", {
-        "request": request, "user": username, "chats": chats,
-    })
-
-
-@router.get("/{companion}", response_class=HTMLResponse)
-async def chat_room(request: Request, companion: str):
-    username = request.session.get("user")
-    if not username:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    if not check_match_exists(username, companion):
-        raise HTTPException(status_code=403, detail="No match with this user")
-    messages = get_messages(username, companion, limit=50)
-    return templates.TemplateResponse("chat_room.html", {
-        "request": request, "user": username,
-        "companion": companion, "messages": messages,
-    })
-
-
-# ─── WebSocket ────────────────────────────────────────────────────────────────
 
 @router.websocket("/ws/{companion}")
 async def websocket_chat(websocket: WebSocket, companion: str):
-    """
-    Поддерживает два способа авторизации:
-    1. Bearer JWT:  ws://host/chat/ws/anna?token=eyJ...
-    2. Session:     ws://host/chat/ws/anna?username=ivan  (браузер)
-    """
-    # Пробуем JWT сначала
     token = websocket.query_params.get("token")
     if token:
         try:
@@ -119,7 +62,6 @@ async def websocket_chat(websocket: WebSocket, companion: str):
             await websocket.close(code=4001, reason="Invalid token")
             return
     else:
-        # Fallback на session username (браузер)
         username = websocket.query_params.get("username")
         if not username:
             await websocket.close(code=4001, reason="token or username required")
@@ -135,21 +77,17 @@ async def websocket_chat(websocket: WebSocket, companion: str):
         while True:
             data = await websocket.receive_json()
             text = data.get("text", "").strip()
-
             if not text:
                 continue
             if len(text) > 1000:
                 await websocket.send_json({"error": "Message too long (max 1000 chars)"})
                 continue
-
             message_id = save_message(sender=username, receiver=companion, text=text)
-
             await manager.broadcast(
                 {"id": message_id, "sender": username, "receiver": companion,
                  "text": text, "type": "message"},
                 username, companion,
             )
-
     except WebSocketDisconnect:
         manager.disconnect(websocket, username, companion)
         await manager.broadcast(

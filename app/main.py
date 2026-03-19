@@ -1,11 +1,8 @@
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from funcs.rate_limit import get_rate_limit_stats, cleanup_old_stats
-from database.database import create_messages_table, ensure_admin_exists, get_filtered_users, info_user
+from database.database import create_messages_table, ensure_admin_exists, get_filtered_users
 from routers.login import router as login_router
 from routers.logout import router as logout_router
 from routers.registers import router as register_router
@@ -26,13 +23,11 @@ async def lifespan(app: FastAPI):
     ensure_admin_exists()
     yield
 
-
 app = FastAPI(
     title="Dating Site API",
     version="1.0",
     lifespan=lifespan
 )
-
 
 app.add_middleware(
     SessionMiddleware,
@@ -43,27 +38,10 @@ app.add_middleware(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000").split(","),
+    allow_origins=os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-app.mount(
-    "/static",
-    StaticFiles(directory=os.path.join(BASE_DIR, "templates", "static")),
-    name="static",
-)
-
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
-
-
-app.mount(
-    "/static",
-    StaticFiles(directory=os.path.join(BASE_DIR, "templates/static")),
-    name="static"
 )
 
 app.include_router(auth_router)
@@ -75,41 +53,21 @@ app.include_router(chat_router)
 app.include_router(profile_router)
 
 
-@app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
-    """
-    Главная страница.
-    - Если пользователь залогинен — показываем ленту анкет (ML-фильтрация).
-    - Если нет — показываем промо-экран.
-    """
+@app.get("/api/feed")
+async def feed(request: Request):
+    """Лента анкет для залогиненного юзера."""
     username = request.session.get("user")
-    data = []
-
-    if username:
-        try:
-            # get_filtered_users возвращает список анкет подходящих юзеру
-            data = get_filtered_users(username) or []
-        except Exception:
-            data = []
-
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "user":    username,
-        "data":    data,
-    })
+    if not username:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        data = get_filtered_users(username) or []
+    except Exception:
+        data = []
+    return {"users": data}
 
 
-@app.get("/admin/rate-limit-stats")
+@app.get("/api/admin/rate-limit-stats")
 async def admin_rate_limit_stats(request: Request):
-    admin_user = request.session.get("user")
-    if admin_user not in ADMINS:
+    if request.session.get("user") not in ADMINS:
         raise HTTPException(status_code=403, detail="Forbidden")
     return await get_rate_limit_stats(request)
-
-@app.get("/about", response_class=HTMLResponse)
-async def about(request: Request):
-    username = request.session.get("user")
-    return templates.TemplateResponse("about.html", {
-        "request":  request,
-        "username": username,
-    })

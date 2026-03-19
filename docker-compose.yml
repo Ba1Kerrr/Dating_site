@@ -14,6 +14,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - dating_network
 
   api:
     build:
@@ -33,6 +35,8 @@ services:
     environment:
       - ENVIRONMENT=development
       - PYTHONUNBUFFERED=1
+    networks:
+      - dating_network
       
   ml:
     build:
@@ -52,6 +56,25 @@ services:
       - ./app/ml:/app/ml
     environment:
       - ENVIRONMENT=development
+    networks:
+      - dating_network
+
+  frontend:
+    build: ./frontend
+    container_name: dating-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    networks:
+      - dating_network
 
 volumes:
   postgres_data:
+
+networks:
+  dating_network:
+    driver: bridge
