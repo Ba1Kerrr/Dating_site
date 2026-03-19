@@ -1,98 +1,29 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Request, Depends
-from database.database import get_messages, save_message, check_match_exists, get_user_chats
-from funcs.jwt_auth import get_current_user, get_user_from_websocket
+from fastapi import APIRouter, Request, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse
+from funcs.jwt_auth import get_current_user_flexible as get_current_user  # ИЗМЕНЕНО
+from database.database import get_user_chats, get_messages, check_match_exists
 
-router = APIRouter(prefix="/api/chat", tags=["chat"])
+router = APIRouter()
 
+@router.get("/api/chat/list")
+async def chat_list(
+    request: Request,
+    current_user: str = Depends(get_current_user)  # Теперь работает и с сессией, и с JWT
+):
+    """Список чатов пользователя"""
+    chats = get_user_chats(current_user)
+    return JSONResponse(content={"chats": chats})
 
-class ConnectionManager:
-    def __init__(self):
-        self.rooms: dict[str, list[WebSocket]] = {}
-
-    def _room_key(self, user1: str, user2: str) -> str:
-        return ":".join(sorted([user1, user2]))
-
-    async def connect(self, websocket: WebSocket, current_user: str, companion: str):
-        await websocket.accept()
-        key = self._room_key(current_user, companion)
-        if key not in self.rooms:
-            self.rooms[key] = []
-        self.rooms[key].append(websocket)
-
-    def disconnect(self, websocket: WebSocket, current_user: str, companion: str):
-        key = self._room_key(current_user, companion)
-        if key in self.rooms:
-            self.rooms[key].remove(websocket)
-            if not self.rooms[key]:
-                del self.rooms[key]
-
-    async def broadcast(self, message: dict, current_user: str, companion: str):
-        key = self._room_key(current_user, companion)
-        for ws in self.rooms.get(key, []):
-            await ws.send_json(message)
-
-
-manager = ConnectionManager()
-
-
-@router.get("/list")
-async def chat_list(username: str = Depends(get_current_user)):
-    return {"chats": get_user_chats(username)}
-
-
-@router.get("/{companion}/history")
+@router.get("/api/chat/{companion}/history")
 async def chat_history(
     companion: str,
-    limit: int = 50,
-    offset: int = 0,
-    username: str = Depends(get_current_user),
+    request: Request,
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    current_user: str = Depends(get_current_user)
 ):
-    if not check_match_exists(username, companion):
-        raise HTTPException(status_code=403, detail="No match with this user")
-    return {"messages": get_messages(username, companion, limit=limit, offset=offset)}
-
-
-@router.websocket("/ws/{companion}")
-async def websocket_chat(websocket: WebSocket, companion: str):
-    token = websocket.query_params.get("token")
-    if token:
-        try:
-            username = get_user_from_websocket(websocket)
-        except HTTPException:
-            await websocket.close(code=4001, reason="Invalid token")
-            return
-    else:
-        username = websocket.query_params.get("username")
-        if not username:
-            await websocket.close(code=4001, reason="token or username required")
-            return
-
-    if not check_match_exists(username, companion):
-        await websocket.close(code=4003, reason="No match with this user")
-        return
-
-    await manager.connect(websocket, username, companion)
-
-    try:
-        while True:
-            data = await websocket.receive_json()
-            text = data.get("text", "").strip()
-            if not text:
-                continue
-            if len(text) > 1000:
-                await websocket.send_json({"error": "Message too long (max 1000 chars)"})
-                continue
-            message_id = save_message(sender=username, receiver=companion, text=text)
-            await manager.broadcast(
-                {"id": message_id, "sender": username, "receiver": companion,
-                 "text": text, "type": "message"},
-                username, companion,
-            )
-    except WebSocketDisconnect:
-        manager.disconnect(websocket, username, companion)
-        await manager.broadcast(
-            {"type": "status", "text": f"{username} отключился"},
-            username, companion,
-        )
-    except Exception:
-        manager.disconnect(websocket, username, companion)
+    if not check_match_exists(current_user, companion):
+        raise HTTPException(status_code=403, detail="No match found")
+    
+    messages = get_messages(current_user, companion, limit, offset)
+    return JSONResponse(content={"messages": messages})

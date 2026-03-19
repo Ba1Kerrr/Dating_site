@@ -1,7 +1,6 @@
-# funcs/jwt_auth.py
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from fastapi import Depends, HTTPException, WebSocket
+from fastapi import Depends, HTTPException, WebSocket, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 import os
@@ -93,3 +92,24 @@ def get_user_from_websocket(websocket: WebSocket) -> str:
         raise HTTPException(status_code=401, detail="Invalid token payload")
 
     return username
+async def get_current_user_flexible(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False)),
+):
+    """Принимает JWT Bearer ИЛИ session cookie"""
+    # Пробуем JWT
+    if credentials:
+        try:
+            payload = decode_token(credentials.credentials)
+            if payload.get("type") != "access":
+                raise HTTPException(status_code=401, detail="Invalid token type")
+            return payload["sub"]
+        except HTTPException:
+            pass
+
+    # Пробуем сессию
+    username = request.session.get("user")
+    if username:
+        return username
+
+    raise HTTPException(status_code=401, detail="Not authenticated")

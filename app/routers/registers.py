@@ -11,7 +11,7 @@ from funcs.verification import send_email
 from funcs.rate_limit import register_rate_limit
 from .schemas import UserAddSchemas, EmailSchema
 
-router = APIRouter(prefix="/api/auth", tags=["auth"])
+router = APIRouter(prefix="/api/register", tags=["register"])
 
 static_dir = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static", "personal_info"

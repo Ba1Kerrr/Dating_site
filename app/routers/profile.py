@@ -1,40 +1,60 @@
-import os
 import uuid
+import os
 
+from fastapi.responses import JSONResponse
+from typing import Optional
+from funcs.jwt_auth import get_current_user_flexible as get_current_user
 from fastapi import APIRouter, Request, HTTPException, Form, File, UploadFile, Depends
 from database.database import profile as get_profile, insert_values_dopinfo
-from funcs.jwt_auth import get_current_user
 
-router = APIRouter(prefix="/api/profile", tags=["profile"])
-
+router = APIRouter()
 static_dir = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static", "personal_info"
 )
 os.makedirs(static_dir, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+MAX_FILE_SIZE = 5 * 1024 * 1024
 
-
-@router.get("/{username}")
-async def view_profile(username: str, current_user: str = Depends(get_current_user)):
-    user_profile = get_profile(username)
-    if not user_profile:
+@router.get("/api/profile/{username}")
+async def view_profile(
+    username: str,
+    request: Request,
+    current_user: str = Depends(get_current_user)
+):
+    """Просмотр профиля"""
+    user_info = get_profile(username)
+    if not user_info:
         raise HTTPException(status_code=404, detail="User not found")
-    return {"profile": user_profile, "is_own": current_user == username}
+    
+    is_owner = (current_user == username)
+    
+    profile_data = {
+        "username": user_info.get("username"),
+        "name": user_info.get("name"),
+        "age": user_info.get("age"),
+        "gender": user_info.get("gender"),
+        "location": user_info.get("location"),
+        "bio": user_info.get("bio"),
+        "avatar": user_info.get("avatar"),
+        "is_owner": is_owner
+    }
+    
+    return JSONResponse(content=profile_data)
 
-
-@router.post("/{username}/edit")
+@router.post("/api/profile/{username}/edit")
 async def edit_profile(
     username: str,
-    name:     str        = Form(default=""),
-    bio:      str        = Form(default=""),
-    location: str        = Form(default=""),
-    age:      int        = Form(default=0),
-    file: UploadFile     = File(default=None),
-    current_user: str    = Depends(get_current_user),
+    request: Request,
+    name: Optional[str] = Form(""),
+    bio: Optional[str] = Form(""),
+    location: Optional[str] = Form(""),
+    age: Optional[int] = Form(0),
+    file: Optional[UploadFile] = File(None),
+    current_user: str = Depends(get_current_user)
 ):
     if current_user != username:
-        raise HTTPException(status_code=403, detail="Forbidden")
+        raise HTTPException(status_code=403, detail="Can't edit other user's profile")
 
     current = get_profile(username) or {}
     avatar  = current.get("avatar", "")

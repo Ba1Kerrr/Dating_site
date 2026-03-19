@@ -1,13 +1,8 @@
 from fastapi import APIRouter, Request
-from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
 
+router = APIRouter(prefix='/api', tags=["logout"])
 
-router = APIRouter(prefix='', tags=["logout"])
-
-templates = Jinja2Templates(directory="templates")
-
-@router.get("/logout")
+@router.post("/logout")
 async def logout(request: Request):
     request.session.clear()
-    return RedirectResponse(url="/", status_code=303)
+    return {"status": "ok"}
