@@ -1,4 +1,3 @@
-# tests/conftest.py
 import sys
 import os
 import pytest
@@ -7,7 +6,6 @@ from unittest.mock import patch, MagicMock
 import types
 import importlib
 import inspect
-from pathlib import Path
 
 sys.path.insert(0, "/app")
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -15,32 +13,26 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app"))
 
 from funcs.rate_limit import _request_log, _lock
 
+
 @pytest.fixture(autouse=True)
 def reset_rate_limiter():
-    """Сбрасывает rate limiter перед каждым тестом"""
     import asyncio
-    
     async def _reset():
         async with _lock:
             _request_log.clear()
-    
     asyncio.run(_reset())
     yield
+
+
 def get_database_functions():
-    """Возвращает список всех функций из database.database"""
     functions = []
-    
     try:
-        original_module = sys.modules.get("database.database")
         if "database.database" in sys.modules:
             del sys.modules["database.database"]
-
         db_module = importlib.import_module("database.database")
-        
         for name, obj in inspect.getmembers(db_module):
             if inspect.isfunction(obj) and not name.startswith('_'):
                 functions.append(name)
-        
     except Exception as e:
         print(f"Warning: Could not import database module: {e}")
         functions = [
@@ -51,11 +43,8 @@ def get_database_functions():
             "get_user_chats", "profile", "get_user_role", "set_user_role",
             "make_first_user_admin", "ensure_admin_exists", "is_admin"
         ]
-    finally:
-        if 'original_module' in locals() and original_module:
-            sys.modules["database.database"] = original_module
-    
     return functions
+
 
 REAL_FUNCTIONS = {
     'check_match_exists', 'save_message', 'get_messages', 'get_user_chats',
@@ -91,14 +80,12 @@ from main import app
 
 @pytest.fixture
 def db():
-    """Фикстура для доступа к моку БД"""
     _db_mock.reset_mock()
     return _db_module
 
 
 @pytest_asyncio.fixture
 async def client():
-    """Клиент для HTTP запросов"""
     from httpx import AsyncClient, ASGITransport
     async with AsyncClient(
         transport=ASGITransport(app=app),
@@ -110,7 +97,6 @@ async def client():
 
 @pytest_asyncio.fixture
 async def auth_client(client):
-    """Авторизованный клиент"""
     with patch("routers.login.info_user", return_value={
         "username": "testuser",
         "password": "hashed",
@@ -119,7 +105,7 @@ async def auth_client(client):
         "location": "Moscow",
         "gender": "male",
     }), patch("routers.login.verify_password", return_value=True):
-        resp = await client.post("/login", data={
+        resp = await client.post("/api/login", data={
             "username": "testuser",
             "password": "password123",
         })
@@ -129,20 +115,16 @@ async def auth_client(client):
 
 @pytest.fixture
 def clean_rate_limit():
-    """Очистка rate limiter перед тестом"""
     from funcs.rate_limit import _request_log, _lock
     import asyncio
-    
     async def _clean():
         async with _lock:
             _request_log.clear()
-    
     asyncio.run(_clean())
     yield
 
 
 @pytest.fixture(autouse=True)
 def setup_test_env():
-    """Настройка тестового окружения"""
     os.environ.setdefault("TESTING", "true")
     yield

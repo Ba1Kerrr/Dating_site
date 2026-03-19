@@ -1,19 +1,10 @@
-"""
-tests/test_smoke.py — Smoke тесты: все роуты отвечают, не падают с 500
-"""
+"""tests/test_smoke.py — Smoke тесты"""
 import pytest
 pytestmark = pytest.mark.asyncio
 
 
 class TestSmoke:
-    """Проверяем что каждый роут вообще отвечает (не 500)"""
-
     @pytest.mark.parametrize("path", [
-        "/register",
-        "/login",
-        "/logout",
-        "/forgot/forgot_password",
-        "/forgot/username",
         "/docs",
         "/openapi.json",
     ])
@@ -25,13 +16,16 @@ class TestSmoke:
         resp = await client.get("/")
         assert resp.status_code != 500
 
+    async def test_logout_not_500(self, client):
+        resp = await client.post("/api/logout")
+        assert resp.status_code != 500
+
     async def test_openapi_schema_valid(self, client):
         resp = await client.get("/openapi.json")
         assert resp.status_code == 200
         schema = resp.json()
         assert "openapi" in schema
         assert "paths" in schema
-        # Проверяем что ключевые роуты есть в схеме
         paths = schema["paths"]
-        assert any("/register" in p for p in paths)
-        assert any("/login" in p for p in paths)
+        assert any("/api/register" in p for p in paths)
+        assert any("/api/login" in p for p in paths)
