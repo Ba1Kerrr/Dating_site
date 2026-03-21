@@ -1,9 +1,10 @@
 import uuid
 import os
+from typing import Optional
 
 from fastapi.responses import JSONResponse
-from typing import Optional
 from funcs.jwt_auth import get_current_user_flexible as get_current_user
+from funcs.subscription import record_profile_view, get_user_plan
 from fastapi import APIRouter, Request, HTTPException, Form, File, UploadFile, Depends
 from database.database import profile as get_profile, insert_values_dopinfo
 
@@ -16,31 +17,39 @@ os.makedirs(static_dir, exist_ok=True)
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
+
 @router.get("/api/profile/{username}")
 async def view_profile(
     username: str,
     request: Request,
-    current_user: str = Depends(get_current_user)
+    current_user: str = Depends(get_current_user),
 ):
-    """Просмотр профиля"""
+    """Просмотр профиля. Записывает просмотр для Premium-аналитики."""
     user_info = get_profile(username)
     if not user_info:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    is_owner = (current_user == username)
-    
+
+    is_owner = current_user == username
+
+    # Записываем просмотр (не себя) — нужно для Premium "кто смотрел"
+    if not is_owner:
+        record_profile_view(viewer_username=current_user, target_username=username)
+
     profile_data = {
-        "username": user_info.get("username"),
-        "name": user_info.get("name"),
-        "age": user_info.get("age"),
-        "gender": user_info.get("gender"),
-        "location": user_info.get("location"),
-        "bio": user_info.get("bio"),
-        "avatar": user_info.get("avatar"),
-        "is_owner": is_owner
+        "username":  user_info.get("username"),
+        "name":      user_info.get("name"),
+        "age":       user_info.get("age"),
+        "gender":    user_info.get("gender"),
+        "location":  user_info.get("location"),
+        "bio":       user_info.get("bio"),
+        "avatar":    user_info.get("avatar"),
+        "is_own":    is_owner,
+        # Показываем email только владельцу
+        **({"email": user_info.get("email")} if is_owner else {}),
     }
-    
+
     return JSONResponse(content=profile_data)
+
 
 @router.post("/api/profile/{username}/edit")
 async def edit_profile(
@@ -51,7 +60,7 @@ async def edit_profile(
     location: Optional[str] = Form(""),
     age: Optional[int] = Form(0),
     file: Optional[UploadFile] = File(None),
-    current_user: str = Depends(get_current_user)
+    current_user: str = Depends(get_current_user),
 ):
     if current_user != username:
         raise HTTPException(status_code=403, detail="Can't edit other user's profile")
@@ -64,7 +73,7 @@ async def edit_profile(
         if ext not in ALLOWED_EXTENSIONS:
             raise HTTPException(status_code=400, detail="Invalid file type")
         contents = await file.read()
-        if len(contents) > 5 * 1024 * 1024:
+        if len(contents) > MAX_FILE_SIZE:
             raise HTTPException(status_code=400, detail="File too large (max 5 MB)")
         filename = f"{username}-{uuid.uuid4().hex}{ext}"
         with open(os.path.join(static_dir, filename), "wb") as f:

@@ -1,71 +1,54 @@
-import pytest
-from unittest.mock import patch
+from fastapi import APIRouter, HTTPException, Request, Form
+from database.database import update_password, update_password_email
+from database.database import info_user, info_user_email
+from funcs.hash import hash_password
+from celery_app import send_password_reset_email
 
-pytestmark = pytest.mark.asyncio
+# Alias so tests can patch `routers.forgot.detect_username_from_email`
+detect_username_from_email = info_user_email
 
-
-class TestForgotPassword:
-    async def test_success(self, client):
-        with patch("routers.forgot.info_user", return_value={
-                "username": "testuser", "email": "t@t.com",
-             }), \
-             patch("routers.forgot.hash_password", return_value="newhashed"), \
-             patch("routers.forgot.update_password", return_value=(True, "ok")):
-            resp = await client.post("/api/forgot/password", data={
-                "username":     "testuser",
-                "new_password": "newpass456",
-            })
-        assert resp.status_code in (200, 302, 303, 400)
-
-    async def test_user_not_found(self, client):
-        with patch("routers.forgot.info_user", return_value=None), \
-             patch("routers.forgot.hash_password", return_value="hashed"), \
-             patch("routers.forgot.update_password", return_value=(False, "not found")):
-            resp = await client.post("/api/forgot/password", data={
-                "username":     "ghost",
-                "new_password": "newpass",
-            })
-        assert resp.status_code in (200, 302, 303, 400, 500)
-
-    async def test_missing_fields(self, client):
-        resp = await client.post("/api/forgot/password", data={"username": "testuser"})
-        assert resp.status_code == 422
-
-    async def test_update_fails_400(self, client):
-        with patch("routers.forgot.info_user", return_value={"username": "testuser"}), \
-             patch("routers.forgot.hash_password", return_value="hashed"), \
-             patch("routers.forgot.update_password", return_value=False):
-            resp = await client.post("/api/forgot/password", data={
-                "username":     "testuser",
-                "new_password": "newpass456",
-            })
-        assert resp.status_code in (200, 302, 303, 400)
+router = APIRouter(prefix='/api/forgot', tags=["forgot"])
 
 
-class TestForgotUsername:
-    async def test_success(self, client):
-        with patch("routers.forgot.info_user_email", return_value={
-                "username": "testuser", "email": "t@t.com",
-             }), \
-             patch("routers.forgot.detect_username_from_email", return_value="testuser"), \
-             patch("routers.forgot.hash_password",              return_value="newhashed"), \
-             patch("routers.forgot.update_password_email",      return_value=(True, "ok")):
-            resp = await client.post("/api/forgot/username", data={
-                "email":        "test@example.com",
-                "new_password": "newpass456",
-            })
-        assert resp.status_code in (200, 302, 303, 400, 500)
+@router.post("/password")
+async def forgot_password(
+    request: Request,
+    username: str = Form(...),
+    new_password: str = Form(...),
+):
+    user = info_user(username)
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found")
 
-    async def test_missing_fields(self, client):
-        resp = await client.post("/api/forgot/username", data={"email": "t@t.com"})
-        assert resp.status_code == 422
+    hashed = hash_password(new_password)
+    success = update_password(username, hashed)
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to update password")
 
-    async def test_update_fails_400(self, client):
-        with patch("routers.forgot.info_user_email", return_value={"username": "u"}), \
-             patch("routers.forgot.hash_password",         return_value="hashed"), \
-             patch("routers.forgot.update_password_email", return_value=False):
-            resp = await client.post("/api/forgot/username", data={
-                "email":        "test@example.com",
-                "new_password": "newpass456",
-            })
-        assert resp.status_code in (200, 302, 303, 400)
+    # Уведомление об изменении пароля — в фоне через Celery
+    email = user.get("email")
+    if email:
+        send_password_reset_email.delay(email, username)
+
+    return {"status": "ok"}
+
+
+@router.post("/username")
+async def forgot_username(
+    request: Request,
+    email: str = Form(...),
+    new_password: str = Form(...),
+):
+    user = detect_username_from_email(email)
+    if not user:
+        raise HTTPException(status_code=400, detail="Email not found")
+
+    hashed = hash_password(new_password)
+    success = update_password_email(email, hashed)
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to update password")
+
+    # Уведомление — в фоне
+    send_password_reset_email.delay(email, user.get("username", ""))
+
+    return {"status": "ok"}

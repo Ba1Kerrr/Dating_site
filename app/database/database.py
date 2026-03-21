@@ -417,3 +417,28 @@ def get_filtered_users(username: str, limit: int = 50, offset: int = 0) -> list[
         return [dict(zip(keys, row)) for row in rows]
     except Exception:
         return []
+def get_blocked_usernames(username: str) -> set[str]:
+    """Все заблокированные username'ы — в обе стороны."""
+    try:
+        with engine.connect() as conn:
+            rows = conn.execute(text("""
+                SELECT u.username FROM blocks b
+                JOIN users blocker ON blocker.id = b.blocker_id
+                JOIN users u       ON u.id       = b.blocked_id
+                WHERE blocker.username = :me
+                UNION
+                SELECT u.username FROM blocks b
+                JOIN users blocked ON blocked.id = b.blocked_id
+                JOIN users u       ON u.id       = b.blocker_id
+                WHERE blocked.username = :me
+            """), {"me": username}).fetchall()
+        return {r[0] for r in rows}
+    except Exception:
+        return set()
+
+
+def get_filtered_users_safe(username: str, limit: int = 50, offset: int = 0) -> list[dict]:
+    """Лента пользователей без заблокированных в обе стороны."""
+    blocked = get_blocked_usernames(username)
+    users = get_filtered_users(username, limit, offset) or []
+    return [u for u in users if u["username"] not in blocked]

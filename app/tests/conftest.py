@@ -41,14 +41,15 @@ def get_database_functions():
             "update_password", "update_password_email", "detect_username_from_email",
             "find_all_users", "check_match_exists", "save_message", "get_messages",
             "get_user_chats", "profile", "get_user_role", "set_user_role",
-            "make_first_user_admin", "ensure_admin_exists", "is_admin"
+            "make_first_user_admin", "ensure_admin_exists", "is_admin",
+            "get_filtered_users", "get_filtered_users_safe", "get_blocked_usernames",
         ]
     return functions
 
 
 REAL_FUNCTIONS = {
     'check_match_exists', 'save_message', 'get_messages', 'get_user_chats',
-    'info_user', 'profile', 'get_user_role', 'is_admin'
+    'info_user', 'profile', 'get_user_role', 'is_admin',
 }
 
 _db_mock = MagicMock()
@@ -67,10 +68,13 @@ for fn_name in all_functions:
                 setattr(_db_module, fn_name, getattr(real_module, fn_name))
             else:
                 setattr(_db_module, fn_name, MagicMock())
-        except:
+        except Exception:
             setattr(_db_module, fn_name, MagicMock())
     else:
         setattr(_db_module, fn_name, MagicMock())
+
+_db_module.get_filtered_users_safe = MagicMock(return_value=[])
+_db_module.get_blocked_usernames   = MagicMock(return_value=set())
 
 sys.modules["database"] = types.ModuleType("database")
 sys.modules["database.database"] = _db_module

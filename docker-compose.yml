@@ -17,6 +17,85 @@ services:
     networks:
       - dating_network
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: dating-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management UI → http://localhost:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - dating_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: dating-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - dating_network
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dating-celery
+    restart: unless-stopped
+    command: celery -A celery_app.celery_app worker --loglevel=info --concurrency=4 -Q emails,default
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    env_file:
+      - app/settings/.env
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    networks:
+      - dating_network
+
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dating-flower
+    restart: unless-stopped
+    command: celery -A celery_app.celery_app flower --port=5555
+    depends_on:
+      - celery_worker
+      - rabbitmq
+    env_file:
+      - app/settings/.env
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    ports:
+      - "5555:5555"  # Flower UI → http://localhost:5555
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    networks:
+      - dating_network
+
   api:
     build:
       context: .
@@ -28,6 +107,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     env_file:
       - app/settings/.env
     volumes:
@@ -35,9 +118,12 @@ services:
     environment:
       - ENVIRONMENT=development
       - PYTHONUNBUFFERED=1
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_URL=redis://redis:6379/0
     networks:
       - dating_network
-      
+
   ml:
     build:
       context: .
@@ -68,7 +154,7 @@ services:
     depends_on:
       - api
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=http://api:8000
     networks:
       - dating_network
 

@@ -1,13 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import {
-  getMe,
   login as apiLogin,
   logout as apiLogout,
   register as apiRegister,
 } from '../api'
+import api from '../api'
 
 const MODAL_DEFAULT = { login: false, register: false, forgot: false }
+
+const getSessionUser = () => api.get('/auth/session')
 
 const useAuthStore = create(
   persist(
@@ -26,38 +28,52 @@ const useAuthStore = create(
       login: async (username, password) => {
         try {
           await apiLogin(username, password)
-          const res = await getMe()
+          const res = await getSessionUser()
           set({ user: res.data, modal: MODAL_DEFAULT })
           return { success: true }
         } catch (err) {
-          return { success: false, error: err.response?.data?.detail || 'Неверный логин или пароль' }
+          return {
+            success: false,
+            error: err.response?.data?.detail || 'Неверный логин или пароль',
+          }
         }
       },
 
+      // После регистрации возвращаем { success: true, redirect: '/register/dop-info' }
+      // чтобы компонент мог сделать navigate()
       register: async (formData) => {
         try {
           await apiRegister({
             username:         formData.username,
             email:            formData.email,
-            input_key:        formData.email_code,
             password:         formData.password,
             confirm_password: formData.confirmPassword,
+            input_key:        formData.email_code,
           })
-          const res = await getMe()
+          const res = await getSessionUser()
           set({ user: res.data, modal: MODAL_DEFAULT })
-          return { success: true }
+          return { success: true, redirect: '/register/dop-info' }
         } catch (err) {
-          return { success: false, error: err.response?.data?.detail || 'Ошибка регистрации' }
+          return {
+            success: false,
+            error: err.response?.data?.detail || 'Ошибка регистрации',
+          }
         }
       },
 
       fetchMe: async () => {
         try {
-          set({ loading: true })
-          const res = await getMe()
-          set({ user: res.data, loading: false })
+          let res
+          try {
+            res = await getSessionUser()
+          } catch {
+            const token = localStorage.getItem('authToken')
+            if (!token) { set({ user: null }); return }
+            res = await api.get('/auth/me')
+          }
+          set({ user: res.data })
         } catch {
-          set({ user: null, loading: false })
+          set({ user: null })
         }
       },
 

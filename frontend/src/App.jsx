@@ -9,6 +9,9 @@ import ChatList from './pages/ChatList'
 import ChatRoom from './pages/ChatRoom'
 import Profile from './pages/Profile'
 import DopInfo from './pages/DopInfo'
+import PrivacyPolicy from './pages/Policy'
+import Terms from './pages/Terms'
+import SubscriptionPage from './pages/SubscriptionPage'
 
 function App() {
   const { fetchMe } = useAuthStore()
@@ -20,7 +23,10 @@ function App() {
       <Routes>
         <Route path="/"                    element={<Home />} />
         <Route path="/about"               element={<About />} />
+        <Route path="/privacy"             element={<PrivacyPolicy />} />
+        <Route path="/terms"               element={<Terms />} />
 
+        <Route path="/subscription"      element={<PrivateRoute><SubscriptionPage /></PrivateRoute>} />
         <Route path="/register/dop-info"   element={<PrivateRoute><DopInfo /></PrivateRoute>} />
         <Route path="/chat"                element={<PrivateRoute><ChatList /></PrivateRoute>} />
         <Route path="/chat/:companion"     element={<PrivateRoute><ChatRoom /></PrivateRoute>} />

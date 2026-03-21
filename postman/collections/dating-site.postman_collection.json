@@ -1,552 +1,676 @@
 {
-  "info": {
-    "name": "Dating Site API",
-    "description": "Полная коллекция для Dating Site API (порт 8000) и ML сервиса (порт 8001).\n\nПеред использованием:\n1. Выбери окружение `Dating Site - Localhost`\n2. Выполни `POST /auth/token` — токен сохранится автоматически\n3. Все Bearer-запросы будут работать сразу",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "version": "2.0.0"
-  },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:8000",
-      "type": "string"
-    },
-    {
-      "key": "ml_url",
-      "value": "http://localhost:8001",
-      "type": "string"
-    },
-    {
-      "key": "token",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "refresh_token",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "username",
-      "value": "testuser",
-      "type": "string"
-    }
-  ],
-  "item": [
-    {
-      "name": "Auth",
-      "description": "JWT аутентификация для API клиентов",
-      "item": [
-        {
-          "name": "Get Token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const json = pm.response.json();",
-                  "if (json.access_token) {",
-                  "    pm.collectionVariables.set('token', json.access_token);",
-                  "    pm.collectionVariables.set('refresh_token', json.refresh_token);",
-                  "    console.log('Токены сохранены');",
-                  "}",
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has access_token', () => pm.expect(json.access_token).to.be.a('string'));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"yourpassword\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/auth/token",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "token"]
-            },
-            "description": "Получить JWT access + refresh токены. Токены автоматически сохраняются в переменные коллекции."
-          }
-        },
-        {
-          "name": "Refresh Token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const json = pm.response.json();",
-                  "if (json.access_token) {",
-                  "    pm.collectionVariables.set('token', json.access_token);",
-                  "    pm.collectionVariables.set('refresh_token', json.refresh_token);",
-                  "    console.log('Токен обновлён');",
-                  "}",
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/auth/refresh",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "refresh"]
-            },
-            "description": "Обновить access токен когда он истёк (401). Использует refresh_token."
-          }
-        },
-        {
-          "name": "Get Me",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{base_url}}/auth/me",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "me"]
-            },
-            "description": "Проверить токен и получить данные текущего пользователя."
-          }
-        }
-      ]
-    },
-    {
-      "name": "Register",
-      "description": "Регистрация нового пользователя",
-      "item": [
-        {
-          "name": "Register Form (HTML)",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/register",
-              "host": ["{{base_url}}"],
-              "path": ["register"]
-            },
-            "description": "HTML форма регистрации"
-          }
-        },
-        {
-          "name": "Register",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                { "key": "username", "value": "{{username}}", "type": "text" },
-                { "key": "email", "value": "user@example.com", "type": "text" },
-                { "key": "password", "value": "securepassword123", "type": "text" },
-                { "key": "confirm_password", "value": "securepassword123", "type": "text" },
-                { "key": "input_key", "value": "1234", "type": "text" },
-                { "key": "age", "value": "25", "type": "text" },
-                { "key": "gender", "value": "male", "type": "text" },
-                { "key": "location", "value": "Moscow", "type": "text" }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/register",
-              "host": ["{{base_url}}"],
-              "path": ["register"]
-            },
-            "description": "Создать новый аккаунт"
-          }
-        },
-        {
-          "name": "Add Profile Info",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                { "key": "age", "value": "25", "type": "text" },
-                { "key": "gender", "value": "male", "type": "text" },
-                { "key": "name", "value": "Иван", "type": "text" },
-                { "key": "location", "value": "Moscow", "type": "text" },
-                { "key": "bio", "value": "Люблю путешествовать и читать книги", "type": "text" },
-                { "key": "file", "type": "file", "src": "" }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/register/dop-info",
-              "host": ["{{base_url}}"],
-              "path": ["register", "dop-info"]
-            },
-            "description": "Заполнить дополнительный профиль + загрузить аватар"
-          }
-        },
-        {
-          "name": "Send Confirmation Email",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/register/send_email",
-              "host": ["{{base_url}}"],
-              "path": ["register", "send_email"]
-            },
-            "description": "Отправить письмо с подтверждением email"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Login / Logout",
-      "description": "Вход и выход через сессию (для браузера)",
-      "item": [
-        {
-          "name": "Login Form (HTML)",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/login",
-              "host": ["{{base_url}}"],
-              "path": ["login"]
-            },
-            "description": "HTML страница входа"
-          }
-        },
-        {
-          "name": "Login",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                { "key": "username", "value": "{{username}}", "type": "text" },
-                { "key": "password", "value": "yourpassword", "type": "text" }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/login",
-              "host": ["{{base_url}}"],
-              "path": ["login"]
-            },
-            "description": "Войти и получить сессию"
-          }
-        },
-        {
-          "name": "Logout",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/logout",
-              "host": ["{{base_url}}"],
-              "path": ["logout"]
-            },
-            "description": "Завершить сессию"
-          }
-        }
-      ]
-    },
-    {
-      "name": " Forgot",
-      "description": "Восстановление пароля и логина",
-      "item": [
-        {
-          "name": "Forgot Password Form (HTML)",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/forgot/forgot_password",
-              "host": ["{{base_url}}"],
-              "path": ["forgot", "forgot_password"]
-            }
-          }
-        },
-        {
-          "name": "Reset Password",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                { "key": "username", "value": "{{username}}", "type": "text" },
-                { "key": "new_password", "value": "newpassword123", "type": "text" }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/forgot/password",
-              "host": ["{{base_url}}"],
-              "path": ["forgot", "password"]
-            },
-            "description": "Сбросить пароль по username"
-          }
-        },
-        {
-          "name": "Forgot Username Form (HTML)",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/forgot/username",
-              "host": ["{{base_url}}"],
-              "path": ["forgot", "username"]
-            }
-          }
-        },
-        {
-          "name": "Recover Username",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                { "key": "email", "value": "user@example.com", "type": "text" },
-                { "key": "new_password", "value": "newpassword123", "type": "text" }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/forgot/username",
-              "host": ["{{base_url}}"],
-              "path": ["forgot", "username"]
-            },
-            "description": "Восстановить доступ по email"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Profile",
-      "description": "Просмотр и редактирование профиля",
-      "item": [
-        {
-          "name": "View Profile",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/profile/{{username}}",
-              "host": ["{{base_url}}"],
-              "path": ["profile", "{{username}}"]
-            },
-            "description": "Просмотреть профиль пользователя по username"
-          }
-        },
-        {
-          "name": "Edit Profile",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                { "key": "name", "value": "Иван", "type": "text" },
-                { "key": "bio", "value": "Обновлённая биография", "type": "text" },
-                { "key": "location", "value": "Saint Petersburg", "type": "text" },
-                { "key": "age", "value": "26", "type": "text" },
-                { "key": "file", "type": "file", "src": "" }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/profile/{{username}}/edit",
-              "host": ["{{base_url}}"],
-              "path": ["profile", "{{username}}", "edit"]
-            },
-            "description": "Обновить данные профиля и/или аватар"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Chat",
-      "description": "Сообщения в реальном времени",
-      "item": [
-        {
-          "name": "Chat List (HTML)",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/chat",
-              "host": ["{{base_url}}"],
-              "path": ["chat"]
-            },
-            "description": "Страница с списком чатов (HTML)"
-          }
-        },
-        {
-          "name": "Chat Room (HTML)",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/chat/companion_username",
-              "host": ["{{base_url}}"],
-              "path": ["chat", "companion_username"]
-            },
-            "description": "Страница чата с конкретным пользователем (HTML)"
-          }
-        },
-        {
-          "name": "API — Chat List",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{base_url}}/chat/api/list",
-              "host": ["{{base_url}}"],
-              "path": ["chat", "api", "list"]
-            },
-            "description": "Список чатов в JSON — для API клиентов"
-          }
-        },
-        {
-          "name": "API — Chat History",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{base_url}}/chat/api/companion_username/history?limit=50&offset=0",
-              "host": ["{{base_url}}"],
-              "path": ["chat", "api", "companion_username", "history"],
-              "query": [
-                { "key": "limit", "value": "50" },
-                { "key": "offset", "value": "0" }
-              ]
-            },
-            "description": "История сообщений с пагинацией (limit/offset)"
-          }
-        }
-      ]
-    },
-    {
-      "name": "ML Service (8001)",
-      "description": "Микросервис машинного обучения для рекомендаций",
-      "item": [
-        {
-          "name": "Health Check",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('ML service is up', () => pm.response.to.have.status(200));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{ml_url}}/health",
-              "host": ["{{ml_url}}"],
-              "path": ["health"]
-            },
-            "description": "Проверить работоспособность ML сервиса"
-          }
-        },
-        {
-          "name": "Train Model",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{ml_url}}/train",
-              "host": ["{{ml_url}}"],
-              "path": ["train"]
-            },
-            "description": "Обучить Random Forest модель на актуальных данных из БД"
-          }
-        },
-        {
-          "name": "Rank Candidates",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user\": {\n    \"age\": 25,\n    \"gender\": \"male\",\n    \"location\": \"Moscow\"\n  },\n  \"candidates\": [\n    {\n      \"id\": 1,\n      \"age\": 23,\n      \"gender\": \"female\",\n      \"location\": \"Moscow\"\n    },\n    {\n      \"id\": 2,\n      \"age\": 30,\n      \"gender\": \"female\",\n      \"location\": \"Saint Petersburg\"\n    }\n  ]\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{ml_url}}/rank",
-              "host": ["{{ml_url}}"],
-              "path": ["rank"]
-            },
-            "description": "Ранжировать кандидатов по совместимости с текущим пользователем"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin",
-      "description": "Административные эндпоинты",
-      "item": [
-        {
-          "name": "Rate Limit Stats",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/admin/rate-limit-stats",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "rate-limit-stats"]
-            },
-            "description": "Статистика превышений rate limit"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Root",
-      "item": [
-        {
-          "name": "Root",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('API is running', () => pm.response.to.have.status(200));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/",
-              "host": ["{{base_url}}"],
-              "path": [""]
-            },
-            "description": "Проверка работы API"
-          }
-        }
-      ]
-    }
-  ]
+	"info": {
+		"_postman_id": "dating-site-2026",
+		"name": "Dating Site API - Complete Collection",
+		"description": "Полная коллекция API endpoints для Dating Site проекта\nBase URL: http://localhost:8000\nДокументация: http://localhost:8000/docs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Get Token (JWT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('access_token', jsonData.access_token);",
+									"    pm.environment.set('refresh_token', jsonData.refresh_token);",
+									"    console.log('Tokens saved to environment');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/token",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "token"]
+						},
+						"description": "Получить JWT токены по логину и паролю. Используется для API клиентов."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('access_token', jsonData.access_token);",
+									"    console.log('Access token refreshed');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh_token\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/refresh",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "refresh"]
+						},
+						"description": "Обновить access токен по refresh токену. Вызывать когда access истёк (401)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Me",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "me"]
+						},
+						"description": "Проверить токен и получить данные текущего пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Session User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/session",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "session"]
+						},
+						"description": "Получить юзера из сессии (для фронта на React)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints для аутентификации и управления токенами"
+		},
+		{
+			"name": "Register & Login",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "test@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "SecurePass123!",
+									"type": "text"
+								},
+								{
+									"key": "confirm_password",
+									"value": "SecurePass123!",
+									"type": "text"
+								},
+								{
+									"key": "age",
+									"value": "25",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "male",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "New York",
+									"type": "text"
+								},
+								{
+									"key": "avatar",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "bio",
+									"value": "Test bio",
+									"type": "text"
+								},
+								{
+									"key": "input_key",
+									"value": "12345",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "register"]
+						},
+						"description": "Регистрация нового пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Сохранить cookies если нужно",
+									"if (pm.response.code === 200) {",
+									"    console.log('Login successful');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login"]
+						},
+						"description": "Вход в систему (session-based для веб-интерфейса)"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "logout"]
+						},
+						"description": "Выход из системы"
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Additional Info",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "age",
+									"value": "25",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "male",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "John Doe",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "New York",
+									"type": "text"
+								},
+								{
+									"key": "bio",
+									"value": "Love hiking and photography",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/register/dop-info",
+							"host": ["{{base_url}}"],
+							"path": ["api", "register", "dop-info"]
+						},
+						"description": "Дополнительная информация профиля с загрузкой фото"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Email Verification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/register/send-email",
+							"host": ["{{base_url}}"],
+							"path": ["api", "register", "send-email"]
+						},
+						"description": "Отправить email верификацию"
+					},
+					"response": []
+				}
+			],
+			"description": "Регистрация и вход через веб-интерфейс"
+		},
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "View Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/profile/:username",
+							"host": ["{{base_url}}"],
+							"path": ["api", "profile", ":username"],
+							"variable": [
+								{
+									"key": "username",
+									"value": "testuser"
+								}
+							]
+						},
+						"description": "Просмотр профиля пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "John Doe Updated",
+									"type": "text"
+								},
+								{
+									"key": "bio",
+									"value": "Updated bio",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "San Francisco",
+									"type": "text"
+								},
+								{
+									"key": "age",
+									"value": "26",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/profile/:username/edit",
+							"host": ["{{base_url}}"],
+							"path": ["api", "profile", ":username", "edit"],
+							"variable": [
+								{
+									"key": "username",
+									"value": "{{username}}"
+								}
+							]
+						},
+						"description": "Редактировать профиль пользователя"
+					},
+					"response": []
+				}
+			],
+			"description": "Управление профилем пользователя"
+		},
+		{
+			"name": "Chat",
+			"item": [
+				{
+					"name": "Get Chat List",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/chat/list",
+							"host": ["{{base_url}}"],
+							"path": ["api", "chat", "list"]
+						},
+						"description": "Список чатов пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Chat History",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/chat/:companion/history?limit=50&offset=0",
+							"host": ["{{base_url}}"],
+							"path": ["api", "chat", ":companion", "history"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Максимум сообщений (1-100)"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Смещение для пагинации"
+								}
+							],
+							"variable": [
+								{
+									"key": "companion",
+									"value": "username",
+									"description": "Username собеседника"
+								}
+							]
+						},
+						"description": "История сообщений с конкретным пользователем"
+					},
+					"response": []
+				}
+			],
+			"description": "Чат функциональность"
+		},
+		{
+			"name": "Feed",
+			"item": [
+				{
+					"name": "Get Feed",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/feed",
+							"host": ["{{base_url}}"],
+							"path": ["api", "feed"]
+						},
+						"description": "Лента анкет для залогиненного юзера"
+					},
+					"response": []
+				}
+			],
+			"description": "Лента рекомендаций"
+		},
+		{
+			"name": "Forgot Password",
+			"item": [
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "text"
+								},
+								{
+									"key": "new_password",
+									"value": "NewSecurePass123!",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/forgot/password",
+							"host": ["{{base_url}}"],
+							"path": ["api", "forgot", "password"]
+						},
+						"description": "Восстановление пароля по username"
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Username",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "test@example.com",
+									"type": "text"
+								},
+								{
+									"key": "new_password",
+									"value": "NewSecurePass123!",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/forgot/username",
+							"host": ["{{base_url}}"],
+							"path": ["api", "forgot", "username"]
+						},
+						"description": "Восстановление по email"
+					},
+					"response": []
+				}
+			],
+			"description": "Восстановление доступа"
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Rate Limit Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/rate-limit-stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "rate-limit-stats"]
+						},
+						"description": "Статистика rate limiting (только для админов)"
+					},
+					"response": []
+				}
+			],
+			"description": "Административные endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "testuser",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "SecurePass123!",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		}
+	]
 }
